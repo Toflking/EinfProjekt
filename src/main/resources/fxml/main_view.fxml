@@ -3,8 +3,9 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<!-- FXML file -->
-<VBox spacing="15" alignment="CENTER" xmlns="http://javafx.com/javafx/8"
+<VBox spacing="15"
+      alignment="CENTER"
+      xmlns="http://javafx.com/javafx/8"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="view.MainController">
 
@@ -12,18 +13,30 @@
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
-    <Label text="My Recipes" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-    <!-- Search Bar -->
+    <Label text="My Recipes"
+           style="-fx-font-size:18px; -fx-font-weight:bold;"/>
+
+    <!-- SEARCH + FILTER -->
     <ToolBar>
+
         <TextField fx:id="searchField"
                    promptText="Search recipes..."
-                   onAction="#runSearch"
                    prefWidth="250"/>
-        <!-- Searchbar -->
-        <Button text="Search" onAction="#runSearch"/>
+
+        <Button text="Search"
+                onAction="#runSearch"/>
+
+        <!-- ✅ CATEGORY FILTER -->
+        <ComboBox fx:id="categoryFilter"
+                  promptText="Category"
+                  prefWidth="160"/>
+
     </ToolBar>
-    <!-- Liste mit allen Rezepten -->
-    <ListView fx:id="mealList" VBox.vgrow="ALWAYS" />
-    <!-- Refresh List button -->
-    <Button text="Refresh List" onAction="#refreshMealList" />
+
+    <ListView fx:id="mealList"
+              VBox.vgrow="ALWAYS"/>
+
+    <Button text="Refresh List"
+            onAction="#refreshMealList"/>
+
 </VBox>
