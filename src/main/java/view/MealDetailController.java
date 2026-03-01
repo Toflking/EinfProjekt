@@ -10,6 +10,7 @@ import javafx.scene.control.ListView;
 import javafx.stage.Stage;
 import model.Meal;
 import model.MealIngredient;
+import services.IngredientCalculationService;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -25,8 +26,8 @@ public class MealDetailController {
     private final MealIngredientDAO dao =
             new MealIngredientDAO();
 
-    private final view.IngredientCalculationService calculationService =
-            new view.IngredientCalculationService();
+    private final IngredientCalculationService calculationService =
+            new IngredientCalculationService();
 
     private Meal meal;
 

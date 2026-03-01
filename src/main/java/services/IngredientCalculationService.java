@@ -1,4 +1,4 @@
-package view;
+package services;
 
 import model.MealIngredient;
 
