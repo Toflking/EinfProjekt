@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<!-- FXML file -->
+<VBox spacing="15" alignment="CENTER" xmlns="http://javafx.com/javafx/8"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="view.MainController">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="My Recipes" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+    <!-- Search Bar -->
+    <ToolBar>
+        <TextField fx:id="searchField"
+                   promptText="Search recipes..."
+                   onAction="#runSearch"
+                   prefWidth="250"/>
+        <!-- Searchbar -->
+        <Button text="Search" onAction="#runSearch"/>
+    </ToolBar>
+    <!-- Liste mit allen Rezepten -->
+    <ListView fx:id="mealList" VBox.vgrow="ALWAYS" />
+    <!-- Refresh List button -->
+    <Button text="Refresh List" onAction="#refreshMealList" />
+</VBox>

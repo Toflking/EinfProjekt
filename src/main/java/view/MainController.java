@@ -3,91 +3,130 @@ package view;
 import dao.MealDAO;
 import javafx.animation.PauseTransition;
 import javafx.concurrent.Task;
-import javafx.scene.control.TextField;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import model.Meal;
-import javafx.fxml.FXML;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Alert;
+
 import java.sql.SQLException;
 import java.util.List;
 
-// Hauptmethode für das Frontend, kontrolliert alle Vorgänge in der App
 public class MainController {
 
-    // Felder in der App
-    @FXML private ListView<String> mealList;
+    @FXML private ListView<Meal> mealList;
     @FXML private TextField searchField;
 
-    // Erstellen der Objekte
     private final MealDAO mealDAO = new MealDAO();
     private final Service service = new Service();
-    private final PauseTransition debounce = new PauseTransition(Duration.millis(300));
+    private final PauseTransition debounce =
+            new PauseTransition(Duration.millis(300));
 
-    // initialize wird ähnlich wie main automatisch ausgeführt, jedoch erst, nachdem das fxml file geladen wurde
     @FXML
     public void initialize() {
-        // lädt die meal list
+
         refreshMealList();
 
-        // debounce um nicht zu viele DB anfragen zu machen
-        debounce.setOnFinished(e -> runSearch());
-        searchField.textProperty().addListener((obs, oldV, newV) -> {
-            debounce.playFromStart();
+        mealList.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(Meal meal, boolean empty) {
+                super.updateItem(meal, empty);
+                setText(empty || meal == null ? null : meal.getName());
+            }
         });
+
+        mealList.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+
+                Meal selected =
+                        mealList.getSelectionModel().getSelectedItem();
+
+                if (selected != null) {
+                    openMealDetail(selected);
+                }
+            }
+        });
+
+        debounce.setOnFinished(e -> runSearch());
+
+        searchField.textProperty().addListener(
+                (obs, oldV, newV) -> debounce.playFromStart()
+        );
     }
 
     @FXML
-    // um die meal list zu laden
     private void refreshMealList() {
         try {
-            // ListMeals methode benutzen um alle Meals zu bekommen
+
             List<Meal> meals = mealDAO.listMeals();
 
-            // Ui clearen vor dem einfügen
             mealList.getItems().clear();
+            mealList.getItems().addAll(meals);
 
-            for (Meal meal : meals) {
-                // Für alle Meals die Namen in die Liste eintragen
-                mealList.getItems().add(meal.getName());
-            }
         } catch (SQLException e) {
-            showError("Database Error", "Could not load meals: " + e.getMessage());
+            showError("Database Error",
+                    "Could not load meals: " + e.getMessage());
         }
     }
 
     @FXML
     private void runSearch() {
-        // Text extrahieren
+
         String query = searchField.getText();
-        // Nach Meals suchen, die query drin haben
+
         Task<List<Meal>> task = new Task<>() {
             @Override
             protected List<Meal> call() throws Exception {
                 return service.searchMeals(query);
             }
         };
-        // mealList updaten mit gesuchten Meals
+
         task.setOnSucceeded(e -> {
             mealList.getItems().clear();
-            for (Meal meal : task.getValue()) {
-                mealList.getItems().add(meal.getName());
-            }
+            mealList.getItems().addAll(task.getValue());
         });
-        // Error Log
-        task.setOnFailed(e -> {
-            Throwable ex = task.getException();
-            showError("Database Error", ex != null ? ex.getMessage() : "Unknown error");
-        });
-        // thread erstellen mit der task
+
+        task.setOnFailed(e ->
+                showError("Error",
+                        task.getException().getMessage())
+        );
+
         Thread t = new Thread(task);
-        // Damit die App sauber schliesst, auch wenn ein Task noch am Laufen ist
         t.setDaemon(true);
         t.start();
-
     }
 
-    // helper methode um errors in der app anzuzeigen
+    private void openMealDetail(Meal meal) {
+
+        try {
+
+            FXMLLoader loader =
+                    new FXMLLoader(
+                            getClass().getResource(
+                                    "/fxml/meal_detail.fxml"
+                            )
+                    );
+
+            Parent root = loader.load();
+
+            MealDetailController controller =
+                    loader.getController();
+
+            controller.setMeal(meal);
+
+            Stage stage =
+                    (Stage) mealList.getScene().getWindow();
+
+            stage.setScene(new Scene(root));
+
+        } catch (Exception e) {
+            showError("Navigation Error", e.getMessage());
+        }
+    }
+
     private void showError(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
