@@ -1,95 +1,197 @@
 package view;
 
+import dao.CategoryDAO;
 import dao.MealDAO;
 import javafx.animation.PauseTransition;
 import javafx.concurrent.Task;
-import javafx.scene.control.TextField;
-import javafx.util.Duration;
-import model.Meal;
 import javafx.fxml.FXML;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Alert;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+import model.Category;
+import model.Meal;
+import services.MealFilterService;
+
 import java.sql.SQLException;
 import java.util.List;
 
-// Hauptmethode für das Frontend, kontrolliert alle Vorgänge in der App
 public class MainController {
 
-    // Felder in der App
-    @FXML private ListView<String> mealList;
+    @FXML private ListView<Meal> mealList;
     @FXML private TextField searchField;
+    @FXML private ComboBox<Category> categoryFilter;
 
-    // Erstellen der Objekte
     private final MealDAO mealDAO = new MealDAO();
-    private final Service service = new Service();
-    private final PauseTransition debounce = new PauseTransition(Duration.millis(300));
+    private final CategoryDAO categoryDAO = new CategoryDAO();
 
-    // initialize wird ähnlich wie main automatisch ausgeführt, jedoch erst, nachdem das fxml file geladen wurde
+    private final MealFilterService filterService =
+            new MealFilterService();
+
+    private final PauseTransition debounce =
+            new PauseTransition(Duration.millis(300));
+
     @FXML
     public void initialize() {
-        // lädt die meal list
-        refreshMealList();
 
-        // debounce um nicht zu viele DB anfragen zu machen
-        debounce.setOnFinished(e -> runSearch());
-        searchField.textProperty().addListener((obs, oldV, newV) -> {
-            debounce.playFromStart();
+        refreshMealList();
+        loadCategories();
+
+        mealList.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(Meal meal, boolean empty) {
+                super.updateItem(meal, empty);
+                setText(empty || meal == null
+                        ? null
+                        : meal.getName());
+            }
         });
+
+        mealList.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+
+                Meal selected =
+                        mealList.getSelectionModel()
+                                .getSelectedItem();
+
+                if (selected != null) {
+                    openMealDetail(selected);
+                }
+            }
+        });
+
+        debounce.setOnFinished(e -> runSearch());
+
+        searchField.textProperty()
+                .addListener((obs, o, n)
+                        -> debounce.playFromStart());
+
+        categoryFilter.setOnAction(e -> runSearch());
     }
 
-    @FXML
-    // um die meal list zu laden
-    private void refreshMealList() {
+    // LOAD CATEGORIES
+    private void loadCategories() {
+
         try {
-            // ListMeals methode benutzen um alle Meals zu bekommen
-            List<Meal> meals = mealDAO.listMeals();
 
-            // Ui clearen vor dem einfügen
-            mealList.getItems().clear();
+            List<Category> categories =
+                    categoryDAO.listCategories();
 
-            for (Meal meal : meals) {
-                // Für alle Meals die Namen in die Liste eintragen
-                mealList.getItems().add(meal.getName());
-            }
+            categoryFilter.getItems().add(null);
+            categoryFilter.getItems().addAll(categories);
+
+            categoryFilter.setCellFactory(cb ->
+                    new ListCell<>() {
+                        @Override
+                        protected void updateItem(
+                                Category c,
+                                boolean empty) {
+                            super.updateItem(c, empty);
+                            setText(empty || c == null
+                                    ? "All"
+                                    : c.getName());
+                        }
+                    });
+
+            categoryFilter.setButtonCell(
+                    new ListCell<>() {
+                        @Override
+                        protected void updateItem(
+                                Category c,
+                                boolean empty) {
+                            super.updateItem(c, empty);
+                            setText(empty || c == null
+                                    ? "All"
+                                    : c.getName());
+                        }
+                    });
+
         } catch (SQLException e) {
-            showError("Database Error", "Could not load meals: " + e.getMessage());
+            showError("Category Error",
+                    e.getMessage());
         }
     }
 
+    // SEARCH + FILTER
     @FXML
     private void runSearch() {
-        // Text extrahieren
+
         String query = searchField.getText();
-        // Nach Meals suchen, die query drin haben
+        Category selectedCategory =
+                categoryFilter.getValue();
+
         Task<List<Meal>> task = new Task<>() {
             @Override
-            protected List<Meal> call() throws Exception {
-                return service.searchMeals(query);
+            protected List<Meal> call()
+                    throws Exception {
+
+                return filterService.searchMeals(
+                        query,
+                        selectedCategory);
             }
         };
-        // mealList updaten mit gesuchten Meals
-        task.setOnSucceeded(e -> {
-            mealList.getItems().clear();
-            for (Meal meal : task.getValue()) {
-                mealList.getItems().add(meal.getName());
-            }
-        });
-        // Error Log
-        task.setOnFailed(e -> {
-            Throwable ex = task.getException();
-            showError("Database Error", ex != null ? ex.getMessage() : "Unknown error");
-        });
-        // thread erstellen mit der task
-        Thread t = new Thread(task);
-        // Damit die App sauber schliesst, auch wenn ein Task noch am Laufen ist
-        t.setDaemon(true);
-        t.start();
 
+        task.setOnSucceeded(e ->
+                mealList.getItems().setAll(
+                        task.getValue()));
+
+        task.setOnFailed(e ->
+                showError("Search Error",
+                        task.getException().getMessage())
+        );
+
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
     }
 
-    // helper methode um errors in der app anzuzeigen
-    private void showError(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
+    // REFRESH
+    @FXML
+    private void refreshMealList() {
+        runSearch();
+    }
+
+    // NAVIGATION
+    private void openMealDetail(Meal meal) {
+
+        try {
+
+            FXMLLoader loader =
+                    new FXMLLoader(
+                            getClass().getResource(
+                                    "/fxml/meal_detail.fxml"));
+
+            Parent root = loader.load();
+
+            // ✅ FIX: properly typed controller
+            MealDetailController controller =
+                    loader.getController();
+
+            controller.setMeal(meal);
+
+            Stage stage =
+                    (Stage) mealList
+                            .getScene()
+                            .getWindow();
+
+            stage.setScene(new Scene(root));
+
+        } catch (Exception e) {
+            showError("Navigation Error",
+                    e.getMessage());
+        }
+    }
+
+    // ERROR HANDLING
+    private void showError(
+            String title,
+            String content) {
+
+        Alert alert =
+                new Alert(Alert.AlertType.ERROR);
+
         alert.setTitle(title);
         alert.setContentText(content);
         alert.showAndWait();
