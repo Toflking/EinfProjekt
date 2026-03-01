@@ -13,46 +13,78 @@ import model.MealIngredient;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MealDetailController {
 
     @FXML private Label mealName;
+    @FXML private Label servingsLabel;
     @FXML private ListView<String> ingredientList;
 
     private final MealIngredientDAO dao =
             new MealIngredientDAO();
 
+    private final view.IngredientCalculationService calculationService =
+            new view.IngredientCalculationService();
+
     private Meal meal;
+
+    private List<MealIngredient> baseIngredients =
+            new ArrayList<>();
+
+    private int servings = 1;
 
     public void setMeal(Meal meal) {
         this.meal = meal;
+        mealName.setText(meal.getName());
         loadIngredients();
     }
 
     private void loadIngredients() {
 
-        mealName.setText(meal.getName());
-        ingredientList.getItems().clear();
-
         try {
-
-            List<MealIngredient> ingredients =
+            baseIngredients =
                     dao.listIngredientsByMealId(meal.getId());
 
-            for (MealIngredient mi : ingredients) {
-
-                ingredientList.getItems().add(
-                        mi.getMeasure() + " - "
-                                + mi.getIngredient_name()
-                );
-            }
+            updateIngredientView();
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
+    // SERVINGS BUTTONS
+    @FXML
+    private void increaseServings() {
+        servings++;
+        updateIngredientView();
+    }
+
+    @FXML
+    private void decreaseServings() {
+        if (servings > 1) {
+            servings--;
+            updateIngredientView();
+        }
+    }
+
+    // UI UPDATE
+    private void updateIngredientView() {
+
+        servingsLabel.setText(String.valueOf(servings));
+
+        ingredientList.getItems().clear();
+
+        ingredientList.getItems().addAll(
+                calculationService.scaleIngredients(
+                        baseIngredients,
+                        servings
+                )
+        );
+    }
+
+    // BACK BUTTON
     @FXML
     private void goBack() throws IOException {
 

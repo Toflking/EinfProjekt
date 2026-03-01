@@ -17,6 +17,14 @@
     <Label fx:id="mealName"
            style="-fx-font-size:20px; -fx-font-weight:bold;" />
 
+    <!-- SERVINGS CONTROL -->
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="-" onAction="#decreaseServings"/>
+        <Label text="Servings:"/>
+        <Label fx:id="servingsLabel"/>
+        <Button text="+" onAction="#increaseServings"/>
+    </HBox>
+
     <Label text="Ingredients"/>
 
     <ListView fx:id="ingredientList"
@@ -24,4 +32,5 @@
 
     <Button text="Back"
             onAction="#goBack"/>
+
 </VBox>
