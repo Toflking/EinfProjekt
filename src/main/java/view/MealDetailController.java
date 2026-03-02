@@ -1,12 +1,15 @@
 package view;
 
+import dao.AreaDAO;
 import dao.MealIngredientDAO;
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
@@ -21,8 +24,10 @@ import java.util.List;
 
 public class MealDetailController {
 
-    @FXML private ImageView mealimage;
     @FXML private Label mealName;
+    @FXML private ImageView mealImage;
+    @FXML private Label mealCountry;
+    @FXML private Label mealInstructions;
     @FXML private Label servingsLabel;
     @FXML private ListView<String> ingredientList;
 
@@ -39,7 +44,7 @@ public class MealDetailController {
 
     private int servings = 1;
 
-    public void setMeal(Meal meal) {
+    public void setMeal(Meal meal) throws SQLException {
         this.meal = meal;
         mealName.setText(meal.getName());
         Image image;
@@ -48,7 +53,10 @@ public class MealDetailController {
         } catch (Exception e) {
             image = new Image(getClass().getResource("/images/placeholder.png").toExternalForm());
         }
-        mealimage.setImage(image);
+        mealImage.setImage(image);
+        AreaDAO areaDAO = new AreaDAO();
+        mealCountry.setText("This Meal is " + areaDAO.getAreaById(meal.getArea_id()).getName());
+        mealInstructions.setText(meal.getInstructions());
         loadIngredients();
     }
 
@@ -87,6 +95,15 @@ public class MealDetailController {
 
         ingredientList.getItems().clear();
 
+        ingredientList.setFixedCellSize(24);
+
+        ingredientList.prefHeightProperty().bind(
+                ingredientList.fixedCellSizeProperty()
+                        .multiply(Bindings.size(ingredientList.getItems()))
+                        .add(2)
+        );
+        ingredientList.minHeightProperty().bind(ingredientList.prefHeightProperty());
+        ingredientList.maxHeightProperty().bind(ingredientList.prefHeightProperty());
         ingredientList.getItems().addAll(
                 calculationService.scaleIngredients(
                         baseIngredients,

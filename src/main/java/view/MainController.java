@@ -165,7 +165,6 @@ public class MainController {
 
             Parent root = loader.load();
 
-            // ✅ FIX: properly typed controller
             MealDetailController controller =
                     loader.getController();
 
@@ -175,9 +174,13 @@ public class MainController {
                     (Stage) mealList
                             .getScene()
                             .getWindow();
+            Scene scene = new Scene(root, 600, 800);
 
-            stage.setScene(new Scene(root));
+            scene.getStylesheets().add(
+                    getClass().getResource("/css/style.css").toExternalForm()
+            );
 
+            stage.setScene(scene);
         } catch (Exception e) {
             showError("Navigation Error",
                     e.getMessage());

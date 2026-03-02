@@ -1,12 +1,14 @@
 package model;
 
+// Klasse für MealIngredient Objekte
 public class MealIngredient {
-
+    // Klassenvariablen
     private int meal_id;
     private int ingredient_id;
     private String ingredient_name;
     private String measure;
 
+    // Getter und Setter
     public int getMeal_id() {
         return meal_id;
     }
@@ -39,6 +41,7 @@ public class MealIngredient {
         this.measure = measure;
     }
 
+    // toString Methode
     @Override
     public String toString() {
         return measure + " - " + ingredient_name;

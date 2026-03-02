@@ -15,8 +15,10 @@ public class App extends Application {
         Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/fxml/main_view.fxml")));
 
         // Scene erstellen mit JavaFx
-        Scene scene = new Scene(root, 600, 400);
-
+        Scene scene = new Scene(root, 600, 800);
+        scene.getStylesheets().add(
+                getClass().getResource("/css/style.css").toExternalForm()
+        );
         stage.setTitle("Meal Planner System");
         stage.setScene(scene);
         stage.show();

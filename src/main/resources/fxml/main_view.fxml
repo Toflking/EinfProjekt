@@ -3,20 +3,24 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
+<!-- Fxml File für den Main Controller -->
+
 <VBox spacing="15"
       alignment="CENTER"
       xmlns="http://javafx.com/javafx/8"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="view.MainController">
 
+    <!-- Padding hinzufügen -->
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
+    <!-- Titel -->
     <Label text="My Recipes"
            style="-fx-font-size:18px; -fx-font-weight:bold;"/>
 
-    <!-- SEARCH + FILTER -->
+    <!-- Search und Filter -->
     <ToolBar>
 
         <TextField fx:id="searchField"
@@ -26,16 +30,16 @@
         <Button text="Search"
                 onAction="#runSearch"/>
 
-        <!-- ✅ CATEGORY FILTER -->
+        <!-- Filter nach Kategorie -->
         <ComboBox fx:id="categoryFilter"
                   promptText="Category"
                   prefWidth="160"/>
 
     </ToolBar>
-
+    <!-- Liste mit Meals -->
     <ListView fx:id="mealList"
               VBox.vgrow="ALWAYS"/>
-
+    <!-- Refresh List Button -->
     <Button text="Refresh List"
             onAction="#refreshMealList"/>
 
