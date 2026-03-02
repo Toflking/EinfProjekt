@@ -30,6 +30,7 @@ target/
 # IntelliJ
 .idea/
 *.iml
+out/
 
 # OS
 .DS_Store
