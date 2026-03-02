@@ -3,7 +3,9 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<VBox spacing="15" alignment="CENTER" xmlns="http://javafx.com/javafx/8"
+<VBox spacing="15"
+      alignment="CENTER"
+      xmlns="http://javafx.com/javafx/8"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="view.MainController">
 
@@ -11,18 +13,30 @@
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
-    <Label text="My Recipes" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+    <Label text="My Recipes"
+           style="-fx-font-size:18px; -fx-font-weight:bold;"/>
 
+    <!-- SEARCH + FILTER -->
     <ToolBar>
+
         <TextField fx:id="searchField"
                    promptText="Search recipes..."
-                   onAction="#runSearch"
                    prefWidth="250"/>
 
-        <Button text="Search" onAction="#runSearch"/>
+        <Button text="Search"
+                onAction="#runSearch"/>
+
+        <!-- ✅ CATEGORY FILTER -->
+        <ComboBox fx:id="categoryFilter"
+                  promptText="Category"
+                  prefWidth="160"/>
+
     </ToolBar>
 
-    <ListView fx:id="mealList" VBox.vgrow="ALWAYS" />
+    <ListView fx:id="mealList"
+              VBox.vgrow="ALWAYS"/>
 
-    <Button text="Refresh List" onAction="#refreshMealList" />
+    <Button text="Refresh List"
+            onAction="#refreshMealList"/>
+
 </VBox>

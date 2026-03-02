@@ -1,13 +1,20 @@
 package model;
 
-// Klasse für MealIngredient Objekte
 public class MealIngredient {
-    // Klassenvariablen
+
     private int meal_id;
     private int ingredient_id;
+    private String ingredient_name;
     private String measure;
 
-    // Getter und Setter
+    public int getMeal_id() {
+        return meal_id;
+    }
+
+    public void setMeal_id(int meal_id) {
+        this.meal_id = meal_id;
+    }
+
     public int getIngredient_id() {
         return ingredient_id;
     }
@@ -16,12 +23,12 @@ public class MealIngredient {
         this.ingredient_id = ingredient_id;
     }
 
-    public int getMeal_id() {
-        return meal_id;
+    public String getIngredient_name() {
+        return ingredient_name;
     }
 
-    public void setMeal_id(int meal_id) {
-        this.meal_id = meal_id;
+    public void setIngredient_name(String ingredient_name) {
+        this.ingredient_name = ingredient_name;
     }
 
     public String getMeasure() {
@@ -32,13 +39,8 @@ public class MealIngredient {
         this.measure = measure;
     }
 
-    // toString methode
     @Override
     public String toString() {
-        return "model.MealIngredient{" +
-                "ingredient_id=" + ingredient_id +
-                ", meal_id=" + meal_id +
-                ", measure='" + measure + '\'' +
-                '}';
+        return measure + " - " + ingredient_name;
     }
 }

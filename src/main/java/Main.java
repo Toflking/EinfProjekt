@@ -11,8 +11,10 @@ Hauptquellen:
 - https://www.themealdb.com/
 - https://docs.oracle.com/en/java/javase/20/docs/api/java.base/module-summary.html
 - https://www.java-forum.org/
+- https://www.youtube.com/watch?v=VUVqamT8Npc
 Grobe Aufteilung des Codes:
-
+Tobias Flammer: Backend, Datenbank setup (Website Parsen)
+Luis: Teile von Frontend (Java FX Code)
 
 
 
