@@ -7,6 +7,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import model.Meal;
 import model.MealIngredient;
@@ -19,6 +21,7 @@ import java.util.List;
 
 public class MealDetailController {
 
+    @FXML private ImageView mealimage;
     @FXML private Label mealName;
     @FXML private Label servingsLabel;
     @FXML private ListView<String> ingredientList;
@@ -39,6 +42,13 @@ public class MealDetailController {
     public void setMeal(Meal meal) {
         this.meal = meal;
         mealName.setText(meal.getName());
+        Image image;
+        try {
+            image = new Image(meal.getThumb(), true);
+        } catch (Exception e) {
+            image = new Image(getClass().getResource("/images/placeholder.png").toExternalForm());
+        }
+        mealimage.setImage(image);
         loadIngredients();
     }
 
