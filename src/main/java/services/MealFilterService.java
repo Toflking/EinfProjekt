@@ -1,6 +1,7 @@
 package services;
 
 import dao.MealDAO;
+import model.Area;
 import model.Category;
 import model.Meal;
 
@@ -17,7 +18,8 @@ public class MealFilterService {
      */
     public List<Meal> searchMeals(
             String query,
-            Category category) throws SQLException {
+            Category category,
+            Area area) throws SQLException {
 
         List<Meal> meals = mealDAO.listMeals();
 
@@ -34,6 +36,12 @@ public class MealFilterService {
                                 m.getCategory_id() != null &&
                                         m.getCategory_id()
                                                 == category.getId()
+                )
+                .filter(m ->
+                        area == null ||
+                                m.getArea_id() != null &&
+                                        m.getArea_id()
+                                                == area.getId()
                 )
                 .collect(Collectors.toList());
     }

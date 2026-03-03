@@ -33,7 +33,12 @@
         <!-- Filter nach Kategorie -->
         <ComboBox fx:id="categoryFilter"
                   promptText="Category"
-                  prefWidth="160"/>
+                  prefWidth="80"/>
+
+        <!-- Filter nach Land -->
+        <ComboBox fx:id="areaFilter"
+                  promptText="Category"
+                  prefWidth="80"/>
 
     </ToolBar>
     <!-- Liste mit Meals -->

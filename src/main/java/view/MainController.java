@@ -1,7 +1,7 @@
 package view;
 
+import dao.AreaDAO;
 import dao.CategoryDAO;
-import dao.MealDAO;
 import javafx.animation.PauseTransition;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -11,21 +11,24 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import model.Area;
 import model.Category;
 import model.Meal;
 import services.MealFilterService;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.function.Function;
 
 public class MainController {
 
     @FXML private ListView<Meal> mealList;
     @FXML private TextField searchField;
     @FXML private ComboBox<Category> categoryFilter;
+    @FXML private ComboBox<Area> areaFilter;
 
-    private final MealDAO mealDAO = new MealDAO();
     private final CategoryDAO categoryDAO = new CategoryDAO();
+    private final AreaDAO areaDAO = new AreaDAO();
 
     private final MealFilterService filterService =
             new MealFilterService();
@@ -38,6 +41,7 @@ public class MainController {
 
         refreshMealList();
         loadCategories();
+        loadAreas();
 
         mealList.setCellFactory(param -> new ListCell<>() {
             @Override
@@ -69,51 +73,64 @@ public class MainController {
                         -> debounce.playFromStart());
 
         categoryFilter.setOnAction(e -> runSearch());
+        areaFilter.setOnAction(e -> runSearch());
     }
 
     // LOAD CATEGORIES
     private void loadCategories() {
-
         try {
-
-            List<Category> categories =
-                    categoryDAO.listCategories();
-
-            categoryFilter.getItems().add(null);
-            categoryFilter.getItems().addAll(categories);
-
-            categoryFilter.setCellFactory(cb ->
-                    new ListCell<>() {
-                        @Override
-                        protected void updateItem(
-                                Category c,
-                                boolean empty) {
-                            super.updateItem(c, empty);
-                            setText(empty || c == null
-                                    ? "All"
-                                    : c.getName());
-                        }
-                    });
-
-            categoryFilter.setButtonCell(
-                    new ListCell<>() {
-                        @Override
-                        protected void updateItem(
-                                Category c,
-                                boolean empty) {
-                            super.updateItem(c, empty);
-                            setText(empty || c == null
-                                    ? "All"
-                                    : c.getName());
-                        }
-                    });
-
+            loadFilter(
+                    categoryFilter,
+                    categoryDAO.listCategories(),
+                    Category::getName
+            );
         } catch (SQLException e) {
-            showError("Category Error",
-                    e.getMessage());
+            showError("Category Error", e.getMessage());
         }
     }
 
+    private void loadAreas() {
+        try {
+            loadFilter(
+                    areaFilter,
+                    areaDAO.listAreas(),
+                    Area::getName
+            );
+        } catch (SQLException e) {
+            showError("Area Error", e.getMessage());
+        }
+    }
+
+    private <T> void loadFilter(
+            ComboBox<T> comboBox,
+            List<T> items,
+            Function<T, String> nameExtractor
+    ) {
+
+        comboBox.getItems().clear();
+        comboBox.getItems().add(null);
+        comboBox.getItems().addAll(items);
+
+        comboBox.setCellFactory(cb -> new ListCell<>() {
+            @Override
+            protected void updateItem(T item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null
+                        ? "All"
+                        : nameExtractor.apply(item));
+            }
+        });
+
+        comboBox.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(T item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null
+                        ? "All"
+                        : nameExtractor.apply(item));
+            }
+        });
+    }
     // SEARCH + FILTER
     @FXML
     private void runSearch() {
@@ -121,6 +138,8 @@ public class MainController {
         String query = searchField.getText();
         Category selectedCategory =
                 categoryFilter.getValue();
+        Area selectedArea =
+                areaFilter.getValue();
 
         Task<List<Meal>> task = new Task<>() {
             @Override
@@ -129,7 +148,8 @@ public class MainController {
 
                 return filterService.searchMeals(
                         query,
-                        selectedCategory);
+                        selectedCategory,
+                        selectedArea);
             }
         };
 
