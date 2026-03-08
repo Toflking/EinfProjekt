@@ -8,7 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 // Backend
-// Alle Methoden für Category Objekte
+// DAO steht für Data Access Object
+// Alle Methoden für Interaktionen zwischen Category Objekten und der Datenbank
+/* 
+Jegliche Methoden hier funktionieren eigentlich nach demselben Prinzip:
+1. Liste/Objekt erstellen, falls nötig
+2. Verbindung mit der Datenbank aufnehmen
+3. SQL query aufbauen (Unten immer PreparedStatement stmt)
+4. Diesen Query ausführen, gibt ResultSet zurück
+5. Resultset auswerten und entweder eine Liste/Objekt zurückgeben oder einen int, ob es funktioniert hat
+ */
+// Diese Klasse wurde vor dem Frontend gemacht, kann also Methoden beinhalten, die nie benutzt werden
+// Auf die Delete Methode wurde verzichtet, da es eigentlich keinen Grund gibt, eine Category zu löschen
 public class CategoryDAO {
     // SQL Strings
     private static final String CREATE_CATEGORY = "INSERT INTO categories (name) VALUES (?)";
@@ -17,7 +28,7 @@ public class CategoryDAO {
     private static final String LIST_CATEGORIES = "SELECT * FROM categories";
     private static final String UPDATE_CATEGORY = "UPDATE categories SET name = ? WHERE id = ?";
 
-    // C
+    // Create Methode zum Erstellen einer Kategorie in der Datenbank
     public int createCategory(String name) throws SQLException {
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(CREATE_CATEGORY, Statement.RETURN_GENERATED_KEYS)) {
@@ -29,7 +40,8 @@ public class CategoryDAO {
         }
     }
 
-    // R
+    // Verschiedene Read Methoden:
+    // Suche nach Category anhand der id in der DB
     public Category getCategoryById(int id) throws SQLException {
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(GET_CATEGORY_BY_ID)) {
@@ -43,6 +55,7 @@ public class CategoryDAO {
         return null;
     }
 
+    // Suche nach Category anhand des Namens in der DB
     public Category getCategoryByName(String name) throws SQLException {
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(GET_CATEGORY_BY_NAME)) {
@@ -56,6 +69,7 @@ public class CategoryDAO {
         return null;
     }
 
+    // Auflistung aller Categorys
     public List<Category> listCategories() throws SQLException {
         List<Category> categories = new ArrayList<>();
         try (Connection conn = Database.getConnection();
@@ -68,7 +82,7 @@ public class CategoryDAO {
         return categories;
     }
 
-    // U
+    // Update Methode, wenn man eine Category in der DB verändern möchte
     public boolean updateCategory(Category category) throws SQLException {
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(UPDATE_CATEGORY)) {
@@ -78,6 +92,8 @@ public class CategoryDAO {
         }
     }
 
+    // Helper Methoden, nur zum Organisieren des Codes, damit obige Methoden nicht zu gross sind
+    // Baut ein Category Objekt anhand eines Result Sets auf
     private Category buildCategory(ResultSet rs) throws SQLException {
         Category category = new Category();
         category.setId(rs.getInt("id"));

@@ -8,7 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 // Backend
-// Alle Methoden für Ingredient Objekte
+// DAO steht für Data Access Object
+// Alle Methoden für Interaktionen zwischen Ingredients Objekten und der Datenbank
+/* 
+Jegliche Methoden hier funktionieren eigentlich nach demselben Prinzip:
+1. Liste/Objekt erstellen, falls nötig
+2. Verbindung mit der Datenbank aufnehmen
+3. SQL query aufbauen (Unten immer PreparedStatement stmt)
+4. Diesen Query ausführen, gibt ResultSet zurück
+5. Resultset auswerten und entweder eine Liste/Objekt zurückgeben oder einen int, ob es funktioniert hat
+ */
+// Diese Klasse wurde vor dem Frontend gemacht, kann also Methoden beinhalten, die nie benutzt werden
+// Auf die Delete Methode wurde verzichtet, da es eigentlich keinen Grund gibt, ein Ingredient zu löschen
 public class IngredientDAO {
     // SQL Strings
     private static final String CREATE_INGREDIENT = "INSERT INTO ingredients (name) VALUES (?)";
@@ -17,7 +28,7 @@ public class IngredientDAO {
     private static final String LIST_INGREDIENTS = "SELECT * FROM ingredients";
     private static final String UPDATE_INGREDIENT = "UPDATE ingredients SET name = ? WHERE id = ?";
 
-    // C
+    // Create Methode zum Erstellen eines Ingredients in der Datenbank
     public int createIngredient(String name) throws SQLException {
         try (Connection conn = Database.getConnection();
         PreparedStatement stmt = conn.prepareStatement(CREATE_INGREDIENT, Statement.RETURN_GENERATED_KEYS)) {
@@ -29,7 +40,8 @@ public class IngredientDAO {
         }
     }
 
-    // R
+    // Verschiedene Read Methoden:
+    // Suche nach Ingredient anhand der id in der DB
     public Ingredient getIngredientById(int id) throws SQLException {
         try (Connection conn = Database.getConnection();
         PreparedStatement stmt = conn.prepareStatement(GET_INGREDIENT_BY_ID)) {
@@ -43,6 +55,7 @@ public class IngredientDAO {
         return null;
     }
 
+    // Suche nach Ingredient anhand des Namens in der DB
     public Ingredient getIngredientByName(String name) throws SQLException {
         try (Connection conn = Database.getConnection();
         PreparedStatement stmt = conn.prepareStatement(GET_INGREDIENT_BY_NAME)) {
@@ -56,6 +69,7 @@ public class IngredientDAO {
         return null;
     }
 
+    // Auflistung aller Ingredients
     public List<Ingredient> listIngredients() throws SQLException {
         List<Ingredient> ingredients = new ArrayList<>();
         try (Connection conn = Database.getConnection();
@@ -68,8 +82,8 @@ public class IngredientDAO {
         }
         return ingredients;
     }
-
-    // U
+    
+    // Update Methode, wenn man ein Ingredient in der DB verändern möchte
     public boolean updateIngredient(Ingredient ingredient) throws SQLException {
         try (Connection conn = Database.getConnection();
         PreparedStatement stmt = conn.prepareStatement(UPDATE_INGREDIENT)) {
@@ -78,7 +92,9 @@ public class IngredientDAO {
             return stmt.executeUpdate() == 1;
         }
     }
-    // Helper
+
+    // Helper Methoden, nur zum Organisieren des Codes, damit obige Methoden nicht zu gross sind
+    // Baut ein Ingredient Objekt anhand eines Result Sets auf
     private Ingredient buildIngredient(ResultSet rs) throws SQLException {
         Ingredient ingredient = new Ingredient();
         ingredient.setId(rs.getInt("id"));

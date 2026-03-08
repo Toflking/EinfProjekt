@@ -1,15 +1,17 @@
-/* ===== App Hintergrund nur für deine App-Root ===== */
+/* CSS file, Nur für einfacheres Styling für die App da, entählt keine Logik für die App */
+
+/* App Hintergrund nur für App-Root */
 .app-root {
     -fx-background-color: #1e1e1e;
     -fx-font-family: "Segoe UI";
 }
 
-/* Textfarben nur innerhalb deiner App */
+/* Textfarben nur innerhalb der App */
 .app-root .label {
     -fx-text-fill: white;
 }
 
-/* Buttons (optional) */
+/* Buttons */
 .app-root .button {
     -fx-background-color: #3a3a3a;
     -fx-text-fill: white;
@@ -21,7 +23,7 @@
 /* ListView Dark */
 .app-root .list-view {
     -fx-background-color: #2b2b2b;
-    -fx-control-inner-background: #2b2b2b; /* wichtig */
+    -fx-control-inner-background: #2b2b2b;
 }
 
 .app-root .list-cell {
@@ -36,7 +38,7 @@
     -fx-text-fill: white;
 }
 
-/* “Website-Scroll” ohne Rahmen */
+/* Website-Scroll ohne Rahmen */
 .page-scroll {
     -fx-background-color: transparent;
 }
@@ -47,6 +49,7 @@
     -fx-background-color: transparent;
 }
 
+/* Title */
 .title {
     -fx-font-size: 20px;
     -fx-font-weight: bold;

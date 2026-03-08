@@ -10,8 +10,20 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+// Backend
+// DAO steht für Data Access Object
+// Alle Methoden für Interaktionen zwischen MealIngredient Objekten und der Datenbank
+/*
+Jegliche Methoden hier funktionieren eigentlich nach demselben Prinzip:
+1. Liste/Objekt erstellen, falls nötig
+2. Verbindung mit der Datenbank aufnehmen
+3. SQL query aufbauen (Unten immer PreparedStatement stmt)
+4. Diesen Query ausführen, gibt ResultSet zurück
+5. Resultset auswerten und entweder eine Liste/Objekt zurückgeben oder einen int, ob es funktioniert hat
+ */
+// Diese Klasse wurde vor dem Frontend gemacht, kann also Methoden beinhalten, die nie benutzt werden
 public class MealIngredientDAO {
-
+    // SQL Strings
     private static final String LIST_INGREDIENTS_BY_MEAL_ID =
             "SELECT mi.meal_id, mi.ingredient_id, " +
                     "i.name AS ingredient_name, mi.measure " +
@@ -19,19 +31,16 @@ public class MealIngredientDAO {
                     "JOIN ingredients i ON mi.ingredient_id = i.id " +
                     "WHERE mi.meal_id = ?";
 
+    // Sucht nach Meal anhand der id in der DB und gibt alle Ingredients zurück die damit zusammen hängen
     public List<MealIngredient> listIngredientsByMealId(int mealId)
             throws SQLException {
 
         List<MealIngredient> mealIngredients = new ArrayList<>();
 
         try (Connection conn = Database.getConnection();
-             PreparedStatement stmt =
-                     conn.prepareStatement(LIST_INGREDIENTS_BY_MEAL_ID)) {
-
+             PreparedStatement stmt = conn.prepareStatement(LIST_INGREDIENTS_BY_MEAL_ID)) {
             stmt.setInt(1, mealId);
-
             ResultSet rs = stmt.executeQuery();
-
             while (rs.next()) {
                 mealIngredients.add(buildMealIngredient(rs));
             }
@@ -40,23 +49,14 @@ public class MealIngredientDAO {
         return mealIngredients;
     }
 
-    private MealIngredient buildMealIngredient(ResultSet rs)
-            throws SQLException {
-
+    // Helper Methoden, nur zum Organisieren des Codes, damit obige Methoden nicht zu gross sind
+    // Baut ein MealIngredient Objekt anhand eines Result Sets auf
+    private MealIngredient buildMealIngredient(ResultSet rs) throws SQLException {
         MealIngredient mealIngredient = new MealIngredient();
-
-        mealIngredient.setMeal_id(
-                rs.getInt("meal_id"));
-
-        mealIngredient.setIngredient_id(
-                rs.getInt("ingredient_id"));
-
-        mealIngredient.setIngredient_name(
-                rs.getString("ingredient_name"));
-
-        mealIngredient.setMeasure(
-                rs.getString("measure"));
-
+        mealIngredient.setMeal_id(rs.getInt("meal_id"));
+        mealIngredient.setIngredient_id(rs.getInt("ingredient_id"));
+        mealIngredient.setIngredient_name(rs.getString("ingredient_name"));
+        mealIngredient.setMeasure(rs.getString("measure"));
         return mealIngredient;
     }
 }

@@ -23,6 +23,7 @@ Luis: Teile von Frontend (Java FX Code)
 
 
 public class Main {
+    // main Methode, hier beginnt das ganze
     public static void main(String[] args) {
         try {
             // Überprüfen der DB connection

@@ -8,7 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 // Backend
-// Alle Methoden für Area Objekte
+// DAO steht für Data Access Object
+// Alle Methoden für Interaktionen zwischen Area Objekten und der Datenbank
+/* 
+Jegliche Methoden hier funktionieren eigentlich nach demselben Prinzip:
+1. Liste/Objekt erstellen, falls nötig
+2. Verbindung mit der Datenbank aufnehmen
+3. SQL query aufbauen (Unten immer PreparedStatement stmt)
+4. Diesen Query ausführen, gibt ResultSet zurück
+5. Resultset auswerten und entweder eine Liste/Objekt zurückgeben oder einen int, ob es funktioniert hat
+ */
+// Diese Klasse wurde vor dem Frontend gemacht, kann also Methoden beinhalten, die nie benutzt werden
+// Auf die Delete Methode wurde verzichtet, da es eigentlich keinen Grund gibt, eine Area zu löschen
 public class AreaDAO {
     // SQL Strings
     private static final String CREATE_AREA = "INSERT INTO areas (name) VALUES (?)";
@@ -17,7 +28,7 @@ public class AreaDAO {
     private static final String LIST_AREAS = "SELECT * FROM areas";
     private static final String UPDATE_AREA = "UPDATE areas SET name = ? WHERE id = ?";
 
-    // C
+    // Create Methode zum Erstellen einer Area in der Datenbank
     public int createArea(String name) throws SQLException {
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(CREATE_AREA, Statement.RETURN_GENERATED_KEYS)) {
@@ -28,8 +39,9 @@ public class AreaDAO {
             }
         }
     }
-
-    // R
+    
+    // Verschiedene Read Methoden:
+    // Suche nach Area anhand der id in der DB
     public Area getAreaById(int id) throws SQLException {
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(GET_AREA_BY_ID)) {
@@ -43,6 +55,7 @@ public class AreaDAO {
         return null;
     }
 
+    // Suche nach Area anhand des Namens in der DB
     public Area getAreaByName(String name) throws SQLException {
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(GET_AREA_BY_NAME)) {
@@ -56,6 +69,7 @@ public class AreaDAO {
         return null;
     }
 
+    // Auflistung aller Areas
     public List<Area> listAreas() throws SQLException {
         List<Area> areas = new ArrayList<>();
         try (Connection conn = Database.getConnection();
@@ -68,7 +82,7 @@ public class AreaDAO {
         return areas;
     }
 
-    // U
+    // Update Methode, wenn man eine Area in der DB verändern möchte
     public boolean updateArea(Area area) throws SQLException {
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(UPDATE_AREA)) {
@@ -77,7 +91,9 @@ public class AreaDAO {
             return stmt.executeUpdate() == 1;
         }
     }
-    // Helper
+
+    // Helper Methoden, nur zum Organisieren des Codes, damit obige Methoden nicht zu gross sind
+    // Baut ein Area Objekt anhand eines Result Sets auf
     private Area buildArea(ResultSet rs) throws SQLException {
         Area area = new Area();
         area.setId(rs.getInt("id"));

@@ -3,6 +3,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <!-- Maven -->
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.example</groupId>
@@ -16,7 +17,7 @@
     </properties>
 
     <dependencies>
-        <!-- Für JavaFX -->
+        <!-- Für JavaFX, Java FX haben wir für das gesamte Frontend unserer App benutzt -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -34,7 +35,7 @@
             <artifactId>javafx-graphics</artifactId>
             <version>23</version>
         </dependency>
-        <!-- Zum auslesen des .env -->
+        <!-- Zum Auslesen des .env in der Database.java Klasse. Das .env File enthält Username und Passwort für die DB und kommt daher nicht auf Github -->
         <dependency>
             <groupId>io.github.cdimascio</groupId>
             <artifactId>dotenv-java</artifactId>

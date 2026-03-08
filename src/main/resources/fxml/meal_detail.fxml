@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!-- Das Fxml File für die detailierte Ansich von Rezepten -->
-
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.ImageView?>
 
+<!-- Das Fxml File für die detailierte Ansich von Rezepten -->
+
+<!-- Scroll Pane, macht das ganze Fenster Scrollable -->
 <ScrollPane xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="view.MealDetailController"
             fitToWidth="true"
             hbarPolicy="NEVER"
-            vbarPolicy="AS_NEEDED"
             styleClass="page-scroll">
 
     <content>

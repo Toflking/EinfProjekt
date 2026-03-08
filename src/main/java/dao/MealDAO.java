@@ -8,7 +8,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 // Backend
-// Alle Methoden für Meals Objekte
+// DAO steht für Data Access Object
+// Alle Methoden für Interaktionen zwischen Meals Objekten und der Datenbank
+/*
+Jegliche Methoden hier funktionieren eigentlich nach demselben Prinzip:
+1. Liste/Objekt erstellen, falls nötig
+2. Verbindung mit der Datenbank aufnehmen
+3. SQL query aufbauen (Unten immer PreparedStatement stmt)
+4. Diesen Query ausführen, gibt ResultSet zurück
+5. Resultset auswerten und entweder eine Liste/Objekt zurückgeben oder einen int, ob es funktioniert hat
+ */
+// Diese Klasse wurde vor dem Frontend gemacht, kann also Methoden beinhalten, die nie benutzt werden
 public class MealDAO {
     // SQL Strings
     private static final String CREATE_MEAL = "INSERT INTO meals (name, category_id, area_id, instructions, thumb, youtube, source, tags) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -22,7 +32,7 @@ public class MealDAO {
     private static final String DELETE_MEAL = "DELETE FROM meals WHERE id = ?";
 
 
-    // C
+    // Create Methode zum Erstellen eines Meals in der Datenbank
     public int createMeal(Meal meal) throws SQLException {
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(CREATE_MEAL)) {
@@ -34,7 +44,8 @@ public class MealDAO {
         }
     }
 
-    // R
+    // Verschiedene Read Methoden:
+    // Suche nach Meal anhand der id in der DB
     public Meal getMealById(int id) throws SQLException {
         try (Connection conn = Database.getConnection();
         PreparedStatement stmt = conn.prepareStatement(GET_MEAL_BY_ID)) {
@@ -47,7 +58,7 @@ public class MealDAO {
         }
         return null;
     }
-
+    // Auflistung aller Meals
     public List<Meal> listMeals() throws SQLException {
         List<Meal> meals = new ArrayList<>();
         try (Connection conn = Database.getConnection();
@@ -60,7 +71,7 @@ public class MealDAO {
         }
         return meals;
     }
-
+    // Auf Listung aller Meals, die den String enthalten
     public List<Meal> listMealsByNameContains(String letters) throws SQLException {
         List<Meal> meals = new ArrayList<>();
         try (Connection conn = Database.getConnection();
@@ -75,20 +86,21 @@ public class MealDAO {
         }
         return meals;
     }
-
+    // Methoden für das Filtern der Meals nach einer id
+    // Filtern nach Ingredient id
     public List<Meal> listMealsByIngredient(int ingredientId) throws SQLException {
         return listMealsByIntParam(LIST_MEALS_BY_INGREDIENT, ingredientId);
     }
-
+    // Filtern nach Category id
     public List<Meal> listMealsByCategory(int categoryId) throws SQLException {
         return listMealsByIntParam(LIST_MEALS_BY_CATEGORY, categoryId);
     }
-
+    // Filtern nach Area id
     public List<Meal> listMealsByArea(int areaId) throws SQLException {
         return listMealsByIntParam(LIST_MEALS_BY_AREA, areaId);
     }
 
-    // U
+    // Update Methode, wenn man ein Meal in der DB verändern möchte
     public boolean updateMeal(Meal meal) throws SQLException {
         try (Connection conn = Database.getConnection();
         PreparedStatement stmt = conn.prepareStatement(UPDATE_MEAL)) {
@@ -98,7 +110,7 @@ public class MealDAO {
         }
     }
 
-    // D
+    // Delete Methode, zum löschen eines Meals aus der DB
     public boolean deleteMealById(int id) throws SQLException {
         try (Connection conn = Database.getConnection();
         PreparedStatement stmt = conn.prepareStatement(DELETE_MEAL)) {
@@ -107,7 +119,8 @@ public class MealDAO {
         }
     }
 
-    // Helper
+    // Helper Methoden, nur zum Organisieren des Codes, damit obige Methoden nicht zu gross sind
+    // baut ein Statement mit einem ganzen Meal Objekt auf
     private void bindMealParams(PreparedStatement stmt, Meal meal) throws SQLException {
         stmt.setString(1, meal.getName());
         stmt.setObject(2, meal.getCategory_id(), Types.INTEGER);
@@ -119,6 +132,7 @@ public class MealDAO {
         stmt.setString(8, meal.getTags());
     }
 
+    // Baut ein Meal Objekt anhand eines Result Sets auf
     private Meal buildMeal(ResultSet rs) throws SQLException {
         Meal meal = new Meal();
         meal.setId(rs.getInt("id"));
@@ -136,6 +150,7 @@ public class MealDAO {
         return meal;
     }
 
+    // Methode für die Filter nach id Methoden, führt die ganze Logik aus, hier unten, weil es 3 mal derselbe Code ist
     private List<Meal> listMealsByIntParam(String sql, int paramId) throws SQLException {
         List<Meal> meals = new ArrayList<>();
         try (Connection conn = Database.getConnection();

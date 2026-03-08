@@ -22,11 +22,11 @@
 
     <!-- Search und Filter -->
     <ToolBar>
-
+        <!-- Such Feld -->
         <TextField fx:id="searchField"
                    promptText="Search recipes..."
                    prefWidth="250"/>
-
+        <!-- Such Button -->
         <Button text="Search"
                 onAction="#runSearch"/>
 
@@ -46,6 +46,6 @@
               VBox.vgrow="ALWAYS"/>
     <!-- Refresh List Button -->
     <Button text="Refresh List"
-            onAction="#refreshMealList"/>
+            onAction="#runSearch"/>
 
 </VBox>

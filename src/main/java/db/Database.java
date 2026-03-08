@@ -6,6 +6,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 // Für die Verbindung mit der DB
+// Hier wird die dotenv Library benutzt
 public class Database {
     // .env File laden
     private static final Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
