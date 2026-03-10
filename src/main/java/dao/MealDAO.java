@@ -28,6 +28,8 @@ public class MealDAO {
     private static final String LIST_MEALS_BY_INGREDIENT = "SELECT DISTINCT m.* FROM meals m JOIN meal_ingredients mi ON mi.meal_id = m.id WHERE mi.ingredient_id = ?";
     private static final String LIST_MEALS_BY_CATEGORY = "SELECT * FROM meals WHERE category_id = ?";
     private static final String LIST_MEALS_BY_AREA = "SELECT * FROM meals WHERE area_id = ?";
+    private static final String LIST_MEALS_BY_USER_ID = "SELECT * FROM meals WHERE created_by_user_id = ?";
+    private static final String LIST_FAVORITE_MEALS_BY_USER = "SELECT m.* FROM meals m " + "JOIN user_favorites uf ON m.id = uf.meal_id " + "WHERE uf.user_id = ?";
     private static final String UPDATE_MEAL = "UPDATE meals SET name = ?, category_id = ?, area_id = ?, instructions = ?, thumb = ?, youtube = ?, source = ?, tags = ? WHERE id = ?";
     private static final String DELETE_MEAL = "DELETE FROM meals WHERE id = ?";
 
@@ -65,13 +67,13 @@ public class MealDAO {
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(LIST_MEALS)) {
             while (rs.next()) {
-                Meal meal = buildMeal(rs);
-                meals.add(meal);
+                meals.add(buildMeal(rs));
             }
         }
         return meals;
     }
-    // Auf Listung aller Meals, die den String enthalten
+
+    // Auflistung aller Meals, die den String enthalten
     public List<Meal> listMealsByNameContains(String letters) throws SQLException {
         List<Meal> meals = new ArrayList<>();
         try (Connection conn = Database.getConnection();
@@ -79,13 +81,13 @@ public class MealDAO {
             stmt.setString(1, "%" + letters + "%");
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    Meal meal = buildMeal(rs);
-                    meals.add(meal);
+                    meals.add(buildMeal(rs));
                 }
             }
         }
         return meals;
     }
+
     // Methoden für das Filtern der Meals nach einer id
     // Filtern nach Ingredient id
     public List<Meal> listMealsByIngredient(int ingredientId) throws SQLException {
@@ -99,6 +101,25 @@ public class MealDAO {
     public List<Meal> listMealsByArea(int areaId) throws SQLException {
         return listMealsByIntParam(LIST_MEALS_BY_AREA, areaId);
     }
+    // Filtern nach Meals von User
+    public List<Meal> listMealsByUserId(int userId) throws SQLException {
+        return listMealsByIntParam(LIST_MEALS_BY_USER_ID, userId);
+    }
+
+    // Methode zum Heraussuchen aller Favorites eines Users
+    public List<Meal> getFavoriteMealsByUser(int user_id) throws SQLException {
+        List<Meal> meals = new ArrayList<>();
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(LIST_FAVORITE_MEALS_BY_USER)) {
+            stmt.setInt(1, user_id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    meals.add(buildMeal(rs));
+                }
+            }
+        }
+        return meals;
+    }
 
     // Update Methode, wenn man ein Meal in der DB verändern möchte
     public boolean updateMeal(Meal meal) throws SQLException {
@@ -110,7 +131,7 @@ public class MealDAO {
         }
     }
 
-    // Delete Methode, zum löschen eines Meals aus der DB
+    // Delete Methode, zum Löschen eines Meals aus der DB
     public boolean deleteMealById(int id) throws SQLException {
         try (Connection conn = Database.getConnection();
         PreparedStatement stmt = conn.prepareStatement(DELETE_MEAL)) {
@@ -158,8 +179,7 @@ public class MealDAO {
             stmt.setInt(1, paramId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    Meal meal = buildMeal(rs);
-                    meals.add(meal);
+                    meals.add(buildMeal(rs));
                 }
             }
         }

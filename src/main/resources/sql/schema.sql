@@ -25,28 +25,30 @@ CREATE TABLE ingredients (
 );
 
 -- Table meals
-CREATE TABLE meals (
-    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    external_id INT NULL,
+CREATE TABLE meals(
+    id           INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    external_id  INT NULL,
     -- Zum sichergehen, dass alle external_id unique sind
     UNIQUE KEY uq_meals_external_id (external_id),
-    name VARCHAR(255) NOT NULL,
-    category_id INT NULL,
-    area_id INT NULL,
+    name         VARCHAR(255) NOT NULL,
+    category_id  INT NULL,
+    area_id      INT NULL,
     instructions TEXT,
-    thumb VARCHAR(500),
-    youtube VARCHAR(500),
-    source VARCHAR(500),
-    tags VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    thumb        VARCHAR(500),
+    youtube      VARCHAR(500),
+    source       VARCHAR(500),
+    tags         VARCHAR(255),
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_meals_category
         FOREIGN KEY (category_id) REFERENCES categories (id),
     CONSTRAINT fk_meals_area
-        FOREIGN KEY (area_id) REFERENCES areas (id)
+        FOREIGN KEY (area_id) REFERENCES areas (id),
+    created_by_user_id INT NULL,
+    FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON DELETE SET NULL;
 );
 
--- Table meal_ingredients
+-- Table meal_ingredients, zwischen Meal und Ingredient
 CREATE TABLE meal_ingredients (
     meal_id       INT NOT NULL,
     ingredient_id INT NOT NULL,
@@ -58,4 +60,21 @@ CREATE TABLE meal_ingredients (
             ON DELETE CASCADE,
     CONSTRAINT fk_meal_ing_ingredient
         FOREIGN KEY (ingredient_id) REFERENCES ingredients (id)
+);
+
+-- Table Users
+CREATE TABLE users(
+    id            INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    username      VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+-- Table user_favorites zwischen User und Meal
+CREATE TABLE user_favorites(
+    user_id    INT NOT NULL,
+    meal_id    INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, meal_id),
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (meal_id) REFERENCES meals (id) ON DELETE CASCADE
 );

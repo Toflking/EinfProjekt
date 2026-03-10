@@ -17,6 +17,7 @@ public class Meal {
    private String tags;
    private Timestamp created_at;
    private Timestamp updated_at;
+   private int created_by_user_id;
 
    // Getter und Setter
    public int getId() {
@@ -113,6 +114,14 @@ public class Meal {
 
    public void setUpdated_at(Timestamp updated_at) {
       this.updated_at = updated_at;
+   }
+
+   public int getCreated_by_user_id() {
+      return created_by_user_id;
+   }
+
+   public void setCreated_by_user_id(int created_by_user_id) {
+      this.created_by_user_id = created_by_user_id;
    }
 
    // toString methode
