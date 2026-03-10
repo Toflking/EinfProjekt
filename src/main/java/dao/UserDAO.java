@@ -27,6 +27,7 @@ Jegliche Methoden hier funktionieren eigentlich nach demselben Prinzip:
 public class UserDAO {
     private static final String CREATE_USER = "INSERT INTO users (username, password) VALUES (?, ?)";
     private static final String GET_USER_BY_ID = "SELECT * FROM users WHERE id = ?";
+    private static final String AUTHENTICATE_USER = "SELECT * FROM users WHERE username = ?";
     private static final String LIST_USERS = "SELECT * FROM users";
     private static final String UPDATE_USER = "UPDATE users SET username = ?, password = ? WHERE id = ?";
     private static final String DELETE_USER = "DELETE FROM users WHERE id = ?";
@@ -61,12 +62,27 @@ public class UserDAO {
         return user;
     }
 
+    // Methode zum Vergleichen des eingegebenen Passworts mit dem in der Datenbank
+    public boolean authenticateUser(String username, String password) throws SQLException {
+        try (Connection conn = Database.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(AUTHENTICATE_USER)) {
+            stmt.setString(1, username);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    // Mit BCrypt das Passwort vergleichen
+                    return BCrypt.checkpw(password, rs.getString("password"));
+                }
+            }
+        }
+        return false;
+    }
+
     // Auflistung aller Meals
     public List<User> listUsers() throws SQLException {
         List<User> users = new ArrayList<>();
         try (Connection conn = Database.getConnection();
         PreparedStatement stmt = conn.prepareStatement(LIST_USERS)) {
-            try (ResultSet rs = stmt.executeQuery();) {
+            try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     User user = new User();
                     user.setId(rs.getInt(1));
