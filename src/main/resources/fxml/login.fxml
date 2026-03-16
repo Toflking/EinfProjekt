@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!-- FXML file, zuständig für den Login Screen -->
+<AnchorPane fx:id="root"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="view.LoginController"
+            prefHeight="400.0"
+            prefWidth="600.0">
+
+<VBox spacing="15"
+          alignment="CENTER"
+          AnchorPane.topAnchor="0"
+          AnchorPane.bottomAnchor="0"
+          AnchorPane.leftAnchor="0"
+          AnchorPane.rightAnchor="0">
+
+        <!-- Titel -->
+        <Label text="Login" styleClass="title"/>
+        <!-- Username -->
+        <TextField fx:id="usernameField" promptText="Username" maxWidth="400"/>
+        <!-- Passwort -->
+        <PasswordField fx:id="passwordField" promptText="Password" maxWidth="400"/>
+
+        <!-- Buttons für Login und Registrierungsfenster -->
+        <Button text="Login" onAction="#login"/>
+        <Button text="Register" onAction="#register"/>
+
+        <!-- Feedback falls Error -->
+        <Label fx:id="loginFailedLabel" textFill="red"/>
+
+    </VBox>
+
+</AnchorPane>

@@ -5,10 +5,7 @@ import model.User;
 // Zum hashen der Passwörter
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,17 +22,17 @@ Jegliche Methoden hier funktionieren eigentlich nach demselben Prinzip:
  */
 // Diese Klasse wurde vor dem Frontend gemacht, kann also Methoden beinhalten, die nie benutzt werden
 public class UserDAO {
-    private static final String CREATE_USER = "INSERT INTO users (username, password) VALUES (?, ?)";
+    private static final String CREATE_USER = "INSERT INTO users (username, password_hash) VALUES (?, ?)";
     private static final String GET_USER_BY_ID = "SELECT * FROM users WHERE id = ?";
-    private static final String AUTHENTICATE_USER = "SELECT * FROM users WHERE username = ?";
+    private static final String GET_USER_BY_NAME = "SELECT * FROM users WHERE username = ?";
     private static final String LIST_USERS = "SELECT * FROM users";
-    private static final String UPDATE_USER = "UPDATE users SET username = ?, password = ? WHERE id = ?";
+    private static final String UPDATE_USER = "UPDATE users SET username = ?, password_hash = ? WHERE id = ?";
     private static final String DELETE_USER = "DELETE FROM users WHERE id = ?";
 
     // Create Methode zum Erstellen eines Users in der Datenbank
     public int createUser(User user) throws SQLException {
         try (Connection conn = Database.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(CREATE_USER)) {
+             PreparedStatement stmt = conn.prepareStatement(CREATE_USER, Statement.RETURN_GENERATED_KEYS)) {
             buildUserParams(stmt, user);
             stmt.executeUpdate();
             try (ResultSet rs = stmt.getGeneratedKeys()) {
@@ -55,22 +52,40 @@ public class UserDAO {
                 if (rs.next()) {
                     user.setId(id);
                     user.setUsername(rs.getString("username"));
-                    user.setPassword(rs.getString("password"));
+                    user.setPassword(rs.getString("password_hash"));
                 }
             }
         }
         return user;
     }
 
+    // Suche nach User anhand Username, wenn kein User gefunden wird, wird null returned
+    public User getUserByUsername(String username) throws SQLException {
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(GET_USER_BY_NAME)) {
+            stmt.setString(1, username);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    User user = new User();
+                    user.setId(rs.getInt("id"));
+                    user.setUsername(rs.getString("username"));
+                    user.setPassword(rs.getString("password_hash"));
+                    return user;
+                }
+            }
+        }
+        return null;
+    }
+
     // Methode zum Vergleichen des eingegebenen Passworts mit dem in der Datenbank
     public boolean authenticateUser(String username, String password) throws SQLException {
         try (Connection conn = Database.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(AUTHENTICATE_USER)) {
+        PreparedStatement stmt = conn.prepareStatement(GET_USER_BY_NAME)) {
             stmt.setString(1, username);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     // Mit BCrypt das Passwort vergleichen
-                    return BCrypt.checkpw(password, rs.getString("password"));
+                    return BCrypt.checkpw(password, rs.getString("password_hash"));
                 }
             }
         }
@@ -98,24 +113,19 @@ public class UserDAO {
     // Update Methode, wenn man einen User in der DB verändern möchte
     public int updateUser(User user) throws SQLException {
         try (Connection conn = Database.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(UPDATE_USER)) {
+             PreparedStatement stmt = conn.prepareStatement(UPDATE_USER)) {
             buildUserParams(stmt, user);
-            stmt.executeUpdate();
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
-                return rs.next() ? rs.getInt(1) : 0;
-            }
+            stmt.setInt(3, user.getId());
+            return stmt.executeUpdate();
         }
     }
 
     // Delete Methode, zum Löschen eines Users aus der DB
     public int deleteUser(int id) throws SQLException {
         try (Connection conn = Database.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(DELETE_USER)) {
+             PreparedStatement stmt = conn.prepareStatement(DELETE_USER)) {
             stmt.setInt(1, id);
-            stmt.executeUpdate();
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
-                return rs.next() ? rs.getInt(1) : 0;
-            }
+            return stmt.executeUpdate();
         }
     }
 

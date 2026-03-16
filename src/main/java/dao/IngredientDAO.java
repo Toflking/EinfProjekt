@@ -84,12 +84,12 @@ public class IngredientDAO {
     }
     
     // Update Methode, wenn man ein Ingredient in der DB verändern möchte
-    public boolean updateIngredient(Ingredient ingredient) throws SQLException {
+    public int updateIngredient(Ingredient ingredient) throws SQLException {
         try (Connection conn = Database.getConnection();
         PreparedStatement stmt = conn.prepareStatement(UPDATE_INGREDIENT)) {
             stmt.setString(1, ingredient.getName());
             stmt.setInt(2, ingredient.getId());
-            return stmt.executeUpdate() == 1;
+            return stmt.executeUpdate();
         }
     }
 

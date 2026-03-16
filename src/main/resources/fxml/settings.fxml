@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="root"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="view.SettingsController"
+            prefHeight="400.0" prefWidth="600.0">
+
+    <VBox spacing="20"
+          alignment="TOP_CENTER"
+          AnchorPane.topAnchor="20"
+          AnchorPane.leftAnchor="20"
+          AnchorPane.rightAnchor="20"
+          AnchorPane.bottomAnchor="20">
+        <HBox spacing="10" alignment="CENTER_LEFT">
+
+            <Region HBox.hgrow="ALWAYS"/>
+            <!-- Zeigt den Usernamen oben rechts an -->
+            <Label text="Logged in as:"/>
+            <Label fx:id="usernameLabel"/>
+
+        </HBox>
+
+        <!-- Titel -->
+        <Label text="Settings" styleClass="title"/>
+
+        <!-- Update -->
+        <VBox spacing="10" alignment="CENTER">
+
+            <Label text="Update Account" styleClass="subtitle"/>
+            <!-- Username -->
+            <TextField fx:id="usernameField" promptText="New Username" maxWidth="400"/>
+            <!-- Passwort -->
+            <PasswordField fx:id="passwordField" promptText="New Password" maxWidth="400"/>
+            <!-- Enter Button -->
+            <Button text="Update Account" onAction="#updateAccount"/>
+        </VBox>
+
+        <!-- Danger Zone -->
+        <VBox spacing="10" alignment="CENTER">
+
+            <Label text="Danger Zone"
+                   style="-fx-text-fill: red;"
+                   styleClass="subtitle"/>
+
+            <!-- Delete Button -->
+            <Button text="Delete Account"
+                    onAction="#deleteAccount"
+                    style="-fx-background-color: #cc4444; -fx-text-fill: white;"/>
+        </VBox>
+
+        <!-- Für Feedback an den User -->
+        <Label fx:id="settingsFailedLabel"/>
+
+        <!-- Buttons für Logout und Zurück -->
+        <HBox spacing="10" alignment="CENTER">
+
+            <Button text="Logout" onAction="#logout"/>
+
+            <Button text="Back" onAction="#goBack"/>
+
+        </HBox>
+
+    </VBox>
+
+</AnchorPane>

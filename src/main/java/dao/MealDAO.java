@@ -37,7 +37,7 @@ public class MealDAO {
     // Create Methode zum Erstellen eines Meals in der Datenbank
     public int createMeal(Meal meal) throws SQLException {
         try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(CREATE_MEAL)) {
+             PreparedStatement stmt = conn.prepareStatement(CREATE_MEAL, Statement.RETURN_GENERATED_KEYS)) {
             bindMealParams(stmt, meal);
             stmt.executeUpdate();
             try (ResultSet rs = stmt.getGeneratedKeys()) {
@@ -122,21 +122,21 @@ public class MealDAO {
     }
 
     // Update Methode, wenn man ein Meal in der DB verändern möchte
-    public boolean updateMeal(Meal meal) throws SQLException {
+    public int updateMeal(Meal meal) throws SQLException {
         try (Connection conn = Database.getConnection();
         PreparedStatement stmt = conn.prepareStatement(UPDATE_MEAL)) {
             bindMealParams(stmt, meal);
             stmt.setInt(9, meal.getId());
-            return stmt.executeUpdate() == 1;
+            return stmt.executeUpdate();
         }
     }
 
     // Delete Methode, zum Löschen eines Meals aus der DB
-    public boolean deleteMealById(int id) throws SQLException {
+    public int deleteMealById(int id) throws SQLException {
         try (Connection conn = Database.getConnection();
         PreparedStatement stmt = conn.prepareStatement(DELETE_MEAL)) {
             stmt.setInt(1, id);
-            return stmt.executeUpdate() == 1;
+            return stmt.executeUpdate();
         }
     }
 

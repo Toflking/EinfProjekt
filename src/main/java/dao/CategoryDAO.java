@@ -83,12 +83,12 @@ public class CategoryDAO {
     }
 
     // Update Methode, wenn man eine Category in der DB verändern möchte
-    public boolean updateCategory(Category category) throws SQLException {
+    public int updateCategory(Category category) throws SQLException {
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(UPDATE_CATEGORY)) {
             stmt.setString(1, category.getName());
             stmt.setInt(2, category.getId());
-            return stmt.executeUpdate() == 1;
+            return stmt.executeUpdate();
         }
     }
 

@@ -1,16 +1,11 @@
 package dao;
 
 import db.Database;
-import model.Meal;
-import model.User;
-import model.UserFavorite;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 // Backend
 // DAO steht für Data Access Object

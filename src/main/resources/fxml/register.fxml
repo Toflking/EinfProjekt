@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!-- FXML File, zuständig für den Registrierungsscreen -->
+<AnchorPane fx:id="root"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="view.RegisterController"
+            prefHeight="400.0"
+            prefWidth="600.0">
+
+    <VBox spacing="15"
+          alignment="CENTER"
+          AnchorPane.topAnchor="0"
+          AnchorPane.bottomAnchor="0"
+          AnchorPane.leftAnchor="0"
+          AnchorPane.rightAnchor="0">
+
+        <!-- Titel -->
+        <Label text="Register" styleClass="title"/>
+
+        <!-- Username -->
+        <TextField fx:id="usernameField" promptText="Username" maxWidth="400"/>
+        <!-- Passwort -->
+        <PasswordField fx:id="passwordField" promptText="Password" maxWidth="400"/>
+
+        <!-- Registrierungs und Zurück Button -->
+        <Button text="Register" onAction="#register"/>
+        <Button text="Back" onAction="#back"/>
+
+        <!-- Fail Label für Feedback an den User -->
+        <Label fx:id="registerFailedLabel" textFill="red"/>
+
+    </VBox>
+
+</AnchorPane>

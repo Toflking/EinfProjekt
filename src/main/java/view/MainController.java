@@ -15,8 +15,10 @@ import javafx.util.Duration;
 import model.Area;
 import model.Category;
 import model.Meal;
+import model.User;
 import services.MealFilterService;
 // Für SQL Exceptions
+import java.io.IOException;
 import java.sql.SQLException;
 // List brauchen wir immer für die Auflistung von einem unserer Objekte also z.B. Meals oder Ingredients
 import java.util.List;
@@ -27,6 +29,7 @@ import java.util.function.Function;
 public class MainController {
 
     // Felder in der App aus dem FXML File
+    @FXML private Label usernameLabel;
     @FXML private ListView<Meal> mealList;
     @FXML private TextField searchField;
     @FXML private ComboBox<Category> categoryFilter;
@@ -44,6 +47,9 @@ public class MainController {
     // Zur Benutzung eines Debounces bei der Suche
     private final PauseTransition debounce =
             new PauseTransition(Duration.millis(300));
+
+    // Aktive Benutzer, wird durch Login/Registrierung gesetzt
+    private User currentUser;
 
     // initialize wird ähnlich wie main automatisch ausgeführt, jedoch erst, nachdem das fxml file geladen wurde
     @FXML
@@ -200,12 +206,8 @@ public class MainController {
     private void openMealDetail(Meal meal) {
 
         try {
-            // Detailansicht FXML laden
-            FXMLLoader loader =
-                    new FXMLLoader(
-                            getClass().getResource(
-                                    "/fxml/meal_detail.fxml"));
-
+            // FXML laden
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/meal_detail.fxml"));
             Parent root = loader.load();
 
             // Controller erstellen
@@ -215,23 +217,53 @@ public class MainController {
             controller.setMeal(meal);
 
             // Stage erstellen
-            Stage stage =
-                    (Stage) mealList
-                            .getScene()
-                            .getWindow();
+            Stage stage = (Stage) mealList.getScene().getWindow();
             Scene scene = new Scene(root, 600, 800);
 
             // CSS file laden
-            scene.getStylesheets().add(
-                    getClass().getResource("/css/style.css").toExternalForm()
-            );
+            scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
 
-            // Stage setzen
+            // Scene setzen
             stage.setScene(scene);
         } catch (Exception e) {
             showError("Navigation Error",
                     e.getMessage());
         }
+    }
+
+    // Methode zum Setzen des Users, wird beim Login/Registrieren gebraucht um den User an den MainController mitzugeben
+    public void setCurrentUser(User currentUser) {
+        this.currentUser = currentUser;
+        usernameLabel.setText(currentUser.getUsername());
+    }
+
+    // Methode für das Ausloggen des Users, geht zum Loginscreen zurück
+    public void logout() throws IOException {
+        // User unsetten
+        this.currentUser = null;
+
+        // FXMl laden
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
+        Parent root = loader.load();
+
+        // Scene setzen
+        Stage stage = (Stage) this.mealList.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    // Methode um Settings Screen zu Öffnen
+    public void openSettings() throws IOException {
+        // FXML laden
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/settings.fxml"));
+        Parent root = loader.load();
+
+        // User Mitgeben
+        SettingsController controller = loader.getController();
+        controller.setCurrentUser(currentUser);
+
+        // Scene setzen
+        Stage stage = (Stage) this.mealList.getScene().getWindow();
+        stage.getScene().setRoot(root);
     }
 
     // helper methode um errors in der app anzuzeigen
@@ -246,4 +278,5 @@ public class MainController {
         alert.setContentText(content);
         alert.showAndWait();
     }
+
 }

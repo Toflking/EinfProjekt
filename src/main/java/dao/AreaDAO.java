@@ -83,12 +83,12 @@ public class AreaDAO {
     }
 
     // Update Methode, wenn man eine Area in der DB verändern möchte
-    public boolean updateArea(Area area) throws SQLException {
+    public int updateArea(Area area) throws SQLException {
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(UPDATE_AREA)) {
             stmt.setString(1, area.getName());
             stmt.setInt(2, area.getId());
-            return stmt.executeUpdate() == 1;
+            return stmt.executeUpdate();
         }
     }
 

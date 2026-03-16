@@ -6,7 +6,6 @@ import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
@@ -20,6 +19,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 // Die Klasse kontrolliert alles, was in der Meal Detail View angezeigt wird
 public class MealDetailController {
@@ -61,7 +61,7 @@ public class MealDetailController {
         try {
             image = new Image(meal.getThumb(), true);
         } catch (Exception e) {
-            image = new Image(getClass().getResource("/images/placeholder.png").toExternalForm());
+            image = new Image(Objects.requireNonNull(getClass().getResource("/images/placeholder.png")).toExternalForm());
         }
         // Bild setzen
         mealImage.setImage(image);
@@ -133,16 +133,14 @@ public class MealDetailController {
     }
 
 
-    // Methode für den Back Button um wieder zum Main Screen zu kommen
+    // Methode für den Back Button, um wieder zum Main Screen zu kommen
     @FXML
     private void goBack() throws IOException {
         // FXML File laden
-        Parent root = FXMLLoader.load(
-                getClass().getResource("/fxml/main_view.fxml"));
-        // Stage abrufen
-        Stage stage =
-                (Stage) mealName.getScene().getWindow();
-        // Stage setzen
-        stage.setScene(new Scene(root));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main_view.fxml"));
+        Parent root = loader.load();
+        // Scene setzen
+        Stage stage = (Stage) mealName.getScene().getWindow();
+        stage.getScene().setRoot(root);
     }
 }

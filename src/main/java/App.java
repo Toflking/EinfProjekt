@@ -13,13 +13,13 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         // fxml File laden aus dem resources ordner
-        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/fxml/main_view.fxml")));
+        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/fxml/login.fxml")));
 
         // Scene erstellen mit JavaFx
         Scene scene = new Scene(root, 600, 800);
         // CSS File laden
         scene.getStylesheets().add(
-                getClass().getResource("/css/style.css").toExternalForm()
+                Objects.requireNonNull(getClass().getResource("/css/style.css")).toExternalForm()
         );
         stage.setTitle("Meal Planner System");
         // Stage setzen

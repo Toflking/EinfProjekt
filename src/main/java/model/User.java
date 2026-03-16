@@ -42,4 +42,11 @@ public class User {
     public void setUsername(String username) {
         this.username = username;
     }
+
+    // Konstruktoren
+    public User() {}
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
 }
