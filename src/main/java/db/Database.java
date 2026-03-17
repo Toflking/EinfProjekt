@@ -16,7 +16,9 @@ public class Database {
     private static final String PASSWORD = dotenv.get("DB_PASSWORD");
     // Connection aufbauen mit der db
     public static Connection getConnection() throws SQLException {
+        if (URL == null || USER == null || PASSWORD == null) {
+            throw new SQLException("Database environment variables DB_URL, DB_USER, or DB_PASSWORD are missing");
+        }
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 }
-

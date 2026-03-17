@@ -35,6 +35,7 @@ public class SettingsController {
     private void updateAccount() throws SQLException {
         // Zurücksetzen des FailedLabels
         settingsFailedLabel.setVisible(false);
+        String currentUsername = currentUser.getUsername();
         // Username und Passwort holen
         String username = usernameField.getText();
         String password = passwordField.getText();
@@ -73,7 +74,8 @@ public class SettingsController {
         // Gibt 1 bei Erfolg zurück
         if (userDAO.updateUser(currentUser) > 0) {
             // User zur Sicherheit nochmal aus der DB holen
-            currentUser = userDAO.getUserByUsername(username);
+            currentUser = userDAO.getUserByUsername(username.isBlank() ? currentUsername : username);
+            usernameLabel.setText(currentUser.getUsername());
             settingsFailedLabel.setText("User Update Successful");
             settingsFailedLabel.setVisible(true);
             settingsFailedLabel.setStyle("-fx-text-fill: green;");

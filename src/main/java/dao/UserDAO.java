@@ -114,7 +114,8 @@ public class UserDAO {
     public int updateUser(User user) throws SQLException {
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(UPDATE_USER)) {
-            buildUserParams(stmt, user);
+            stmt.setString(1, user.getUsername());
+            stmt.setString(2, resolvePasswordHash(user));
             stmt.setInt(3, user.getId());
             return stmt.executeUpdate();
         }
@@ -136,5 +137,38 @@ public class UserDAO {
         stmt.setString(1, user.getUsername());
         // Hier wird BCrypt verwendet um das Passwort zu hashen
         stmt.setString(2, BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
+    }
+
+    // Helper Methode zum Umwandeln des Passworts in einen Hash mithilfe von BCrypt
+    private String resolvePasswordHash(User user) throws SQLException {
+        String password = user.getPassword();
+
+        if (password == null || password.isBlank()) {
+            return getPasswordHashByUserId(user.getId());
+        }
+
+        // Wenn Passwort bereits ein Hash ist, dann nicht nochmal Hashen
+        // Dies würde sonst vorallem beim Updaten des Passworts Probleme bereiten
+        if (password.startsWith("$2a$") || password.startsWith("$2b$") || password.startsWith("$2y$")) {
+            return password;
+        }
+
+        // Hashen
+        return BCrypt.hashpw(password, BCrypt.gensalt());
+    }
+
+    // Methode zum Bekommen des Passworts nach Id, wird gebraucht für das korrekte Hashen
+    private String getPasswordHashByUserId(int userId) throws SQLException {
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(GET_USER_BY_ID)) {
+            stmt.setInt(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("password_hash");
+                }
+            }
+        }
+
+        throw new SQLException("User not found for password update");
     }
 }

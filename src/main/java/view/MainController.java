@@ -215,6 +215,7 @@ public class MainController {
                     loader.getController();
 
             controller.setMeal(meal);
+            controller.setCurrentUser(currentUser);
 
             // Stage erstellen
             Stage stage = (Stage) mealList.getScene().getWindow();

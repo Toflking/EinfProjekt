@@ -11,6 +11,7 @@ public class DbInit {
         } catch (SQLException ex) {
             System.out.println("DB connection ERROR");
             System.out.println(ex.getMessage());
+            throw ex;
         }
 
     }

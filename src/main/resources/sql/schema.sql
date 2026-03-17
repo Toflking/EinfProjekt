@@ -24,6 +24,14 @@ CREATE TABLE ingredients (
     name VARCHAR(255) NOT NULL UNIQUE
 );
 
+-- Table Users
+CREATE TABLE users(
+    id            INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    username      VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Table meals
 CREATE TABLE meals(
     id           INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -45,7 +53,7 @@ CREATE TABLE meals(
     CONSTRAINT fk_meals_area
         FOREIGN KEY (area_id) REFERENCES areas (id),
     created_by_user_id INT NULL,
-    FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON DELETE SET NULL;
+    FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 -- Table meal_ingredients, zwischen Meal und Ingredient
@@ -62,13 +70,6 @@ CREATE TABLE meal_ingredients (
         FOREIGN KEY (ingredient_id) REFERENCES ingredients (id)
 );
 
--- Table Users
-CREATE TABLE users(
-    id            INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    username      VARCHAR(100) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
-    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
 -- Table user_favorites zwischen User und Meal
 CREATE TABLE user_favorites(
     user_id    INT NOT NULL,

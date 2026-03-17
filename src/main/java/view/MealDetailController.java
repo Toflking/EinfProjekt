@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import model.User;
 
 // Die Klasse kontrolliert alles, was in der Meal Detail View angezeigt wird
 public class MealDetailController {
@@ -42,6 +43,7 @@ public class MealDetailController {
 
     // Speichern welches Meal geladen ist
     private Meal meal;
+    private User currentUser;
 
     // Liste für das Berechnen der Measures. Behält immer die Mengen ohne Skalierung
     private List<MealIngredient> baseIngredients =
@@ -139,8 +141,15 @@ public class MealDetailController {
         // FXML File laden
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main_view.fxml"));
         Parent root = loader.load();
+
+        MainController controller = loader.getController();
+        controller.setCurrentUser(currentUser);
         // Scene setzen
         Stage stage = (Stage) mealName.getScene().getWindow();
         stage.getScene().setRoot(root);
+    }
+
+    public void setCurrentUser(User currentUser) {
+        this.currentUser = currentUser;
     }
 }
