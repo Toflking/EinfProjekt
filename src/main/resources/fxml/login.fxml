@@ -29,7 +29,7 @@
         <Button text="Login" onAction="#login"/>
         <Button text="Register" onAction="#register"/>
 
-        <!-- Feedback falls Error -->
+        <!-- Feedback falls falsche Usereingabe -->
         <Label fx:id="loginFailedLabel" textFill="red"/>
 
     </VBox>

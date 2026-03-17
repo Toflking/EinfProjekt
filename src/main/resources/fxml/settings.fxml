@@ -52,7 +52,7 @@
                     style="-fx-background-color: #cc4444; -fx-text-fill: white;"/>
         </VBox>
 
-        <!-- Für Feedback an den User -->
+        <!-- Für Feedback an den User bei falscher Eingabe -->
         <Label fx:id="settingsFailedLabel"/>
 
         <!-- Buttons für Logout und Zurück -->

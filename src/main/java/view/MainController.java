@@ -8,6 +8,7 @@ import dao.UserFavoriteDAO;
 // JavaFX Klassen
 import javafx.animation.PauseTransition;
 import javafx.concurrent.Task;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -81,6 +82,7 @@ public class MainController {
 
         // Für das saubere Anzeigen der Meals zusammen mit den Herzen
         mealList.setCellFactory(param -> new ListCell<>() {
+            // Alle Elemente pro Zeile
             private final Label mealNameLabel = new Label();
             private final Label heartLabel = new Label("♡");
             private final Region spacer = new Region();
@@ -90,41 +92,49 @@ public class MainController {
                 mealNameLabel.setMaxWidth(Double.MAX_VALUE);
 
                 heartLabel.getStyleClass().add("meal-list-heart");
-                heartLabel.setOnMousePressed(event -> event.consume());
-                heartLabel.setOnMouseReleased(event -> event.consume());
+                // Event Skippen, wenn Mouse Pressed/Released auf dem Herz, damit man nicht ein Meal selected während man auf das Herz klickt
+                heartLabel.setOnMousePressed(Event::consume);
+                heartLabel.setOnMouseReleased(Event::consume);
+                // Wenn die Mouse über das Herz geht
                 heartLabel.setOnMouseEntered(event -> {
                     Meal currentMeal = getItem();
 
-                    if (currentMeal == null
-                            || favoriteMealIds.contains(currentMeal.getId())) {
+                    // Wenn bereits Favorite nichts ändern
+                    if (currentMeal == null || favoriteMealIds.contains(currentMeal.getId())) {
                         return;
                     }
 
+                    // Sonst Style auf hover setzen
                     heartLabel.getStyleClass().remove("heart-filled");
                     if (!heartLabel.getStyleClass().contains("heart-hover")) {
                         heartLabel.getStyleClass().add("heart-hover");
                     }
                 });
+                // Wenn Mouse das Herz Exited
                 heartLabel.setOnMouseExited(event ->
+                        // Hover entfernen
                         heartLabel.getStyleClass().remove("heart-hover"));
+                // Wenn Mouse auf Herz Klickt
                 heartLabel.setOnMouseClicked(event -> {
                     event.consume();
 
                     Meal currentMeal = getItem();
 
-                    if (currentMeal == null
-                            || currentUser == null) {
+                    if (currentMeal == null || currentUser == null) {
                         return;
                     }
 
                     try {
+                        // Wenn das Meal bereits Favorite ist, dann Favorite entfernen
                         if (favoriteMealIds.contains(currentMeal.getId())) {
                             int result = userFavoriteDAO.removeFavorite(
                                     currentUser.getId(),
                                     currentMeal.getId()
                             );
 
+                            // =0 wenn gescheitert >0 wenn erfolgreich
                             if (result > 0) {
+                                // Wenn erfolgreich auch lokal entfernen
                                 favoriteMealIds.remove(currentMeal.getId());
                                 updateHeartState(heartLabel, currentMeal);
                             } else {
@@ -132,12 +142,15 @@ public class MainController {
                                         "Could not remove favorite.");
                             }
                         } else {
+                            // Ansonsten Favorite hinzufügen
                             int result = userFavoriteDAO.addFavorite(
                                     currentUser.getId(),
                                     currentMeal.getId()
                             );
 
+                            // =0 wenn gescheitert >0 wenn erfolgreich
                             if (result > 0) {
+                                // Wenn erfolgreich auch Lokal hinzufügen
                                 favoriteMealIds.add(currentMeal.getId());
                                 updateHeartState(heartLabel, currentMeal);
                             } else {
@@ -145,12 +158,13 @@ public class MainController {
                                         "Could not add favorite.");
                             }
                         }
+                        // Liste updaten, falls nach Favorites gefiltert wird, werden so nicht mehr Favorisierte entfernt
                         runSearch();
                     } catch (SQLException e) {
                         showError("Favorite Error", e.getMessage());
                     }
                 });
-
+                // HBox setzen
                 HBox.setHgrow(spacer, Priority.ALWAYS);
                 content.setAlignment(Pos.CENTER_LEFT);
                 content.getChildren().addAll(
@@ -160,6 +174,7 @@ public class MainController {
                 );
             }
 
+            // Für das Korrekte updaten der Meals
             @Override
             protected void updateItem(Meal meal, boolean empty) {
                 super.updateItem(meal, empty);
@@ -347,18 +362,24 @@ public class MainController {
     // Methode zum Setzen des Users, wird beim Login/Registrieren gebraucht um den User an den MainController mitzugeben
     public void setCurrentUser(User currentUser) {
         this.currentUser = currentUser;
+        // Username Label setzen
         usernameLabel.setText(currentUser.getUsername());
+        // Favoriten laden
         loadFavoritesForCurrentUser();
+        // Liste refreshen
         mealList.refresh();
     }
 
+    // Favoriten des Useres laden
     private void loadFavoritesForCurrentUser() {
+        // Set Clearen
         favoriteMealIds.clear();
 
         if (currentUser == null) {
             return;
         }
 
+        // alle Favorites des Users holen und zum Set hinzufügen
         try {
             for (Meal meal : mealDAO
                     .getFavoriteMealsByUser(currentUser.getId())) {
@@ -369,16 +390,17 @@ public class MainController {
         }
     }
 
+    // Herz korrekt updaten
     private void updateHeartState(Label heartLabel, Meal meal) {
-        heartLabel.setText(favoriteMealIds.contains(meal.getId())
-                ? "♥"
-                : "♡");
+        // Je nachdem ob Favorite richtiges Herz benutzen
+        heartLabel.setText(favoriteMealIds.contains(meal.getId()) ? "♥" : "♡");
 
         heartLabel.getStyleClass().remove("heart-filled");
         heartLabel.getStyleClass().remove("heart-hover");
 
-        if (favoriteMealIds.contains(meal.getId())
-                && !heartLabel.getStyleClass().contains("heart-filled")) {
+        // Wenn favorite dann style auf heart filled setzen
+
+        if (favoriteMealIds.contains(meal.getId()) && !heartLabel.getStyleClass().contains("heart-filled")) {
             heartLabel.getStyleClass().add("heart-filled");
         }
     }
@@ -406,6 +428,35 @@ public class MainController {
 
         // User Mitgeben
         SettingsController controller = loader.getController();
+        controller.setCurrentUser(currentUser);
+
+        // Scene setzen
+        Stage stage = (Stage) this.mealList.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    // Methode die den Meal Ersteller Screen öffnet
+    public void openCreateMeal() throws IOException {
+        // FXML laden
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/create_meal.fxml"));
+        Parent root = loader.load();
+
+        // User Mitgeben
+        CreateMealController controller = loader.getController();
+        controller.setCurrentUser(currentUser);
+
+        // Scene setzen
+        Stage stage = (Stage) this.mealList.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    public void openManageMeals() throws IOException {
+        // FXML laden
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/manage_meals.fxml"));
+        Parent root = loader.load();
+
+        // User Mitgeben
+        ManageMealsController controller = loader.getController();
         controller.setCurrentUser(currentUser);
 
         // Scene setzen

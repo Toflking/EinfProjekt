@@ -13,8 +13,8 @@ Hauptquellen:
 - https://www.java-forum.org/
 - https://www.youtube.com/watch?v=VUVqamT8Npc
 Grobe Aufteilung des Codes:
-Tobias Flammer: Backend, Datenbank setup (Website Parsen)
-Luis: Teile von Frontend (Java FX Code)
+Tobias: Backend, Datenbank setup (Website Parsen) und Teile des Frontends
+Luis: Teile vom Frontend
 
 
 

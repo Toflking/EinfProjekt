@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!-- FXML File für den Manage Meals Controller -->
+
+<VBox spacing="15"
+      alignment="CENTER"
+      xmlns="http://javafx.com/javafx/8"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="view.ManageMealsController">
+
+    <!-- Padding hinzufügen -->
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- Back Button und Username -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button text="Back"
+                onAction="#goBack"/>
+
+        <Region HBox.hgrow="ALWAYS"/>
+        <!-- Anzeige des Usernamens -->
+        <Label text="Logged in as:"/>
+        <Label fx:id="usernameLabel"/>
+    </HBox>
+
+    <!-- Titel -->
+    <Label text="Manage Meals"
+           styleClass="title"/>
+
+    <!-- Liste mit Meals -->
+    <ListView fx:id="mealList"
+              VBox.vgrow="ALWAYS"/>
+
+</VBox>

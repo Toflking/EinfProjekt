@@ -17,6 +17,10 @@
     </padding>
 
     <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button text="Create"
+                onAction="#openCreateMeal"/>
+        <Button text="Manage"
+                onAction="#openManageMeals"/>
 
         <Region HBox.hgrow="ALWAYS"/>
         <!-- Anzeige des Usernamens -->
@@ -52,8 +56,7 @@
         <Separator orientation="VERTICAL"/>
 
         <HBox alignment="CENTER_LEFT"
-              spacing="8"
-              styleClass="favorites-filter">
+              spacing="8">
             <Label text="Favorites:"
                    styleClass="favorites-filter-label"/>
             <CheckBox fx:id="favoritesOnlyCheckBox" styleClass="filter-checkbox"/>

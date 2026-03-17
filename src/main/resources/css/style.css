@@ -104,6 +104,7 @@
     -fx-font-size: 18;
 }
 
+/* Für die Checkbox zum Filtern nach Favorites */
 .filter-checkbox {
     -fx-padding: 0;
 }
@@ -132,11 +133,4 @@
 .favorites-filter-label {
     -fx-text-fill: #444444;
     -fx-font-size: 13;
-}
-
-.web-view {
-    -fx-background-color: #111111;
-    -fx-border-color: #3a3a3a;
-    -fx-border-radius: 8;
-    -fx-background-radius: 8;
 }

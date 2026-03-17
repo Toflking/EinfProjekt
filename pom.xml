@@ -35,12 +35,6 @@
             <artifactId>javafx-graphics</artifactId>
             <version>23</version>
         </dependency>
-        <!-- Für eingebettete Webseiten wie YouTube Videos -->
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-web</artifactId>
-            <version>23</version>
-        </dependency>
         <!-- Zum Auslesen des .env in der Database.java Klasse. Das .env File enthält Username und Passwort für die DB und kommt daher nicht auf Github -->
         <dependency>
             <groupId>io.github.cdimascio</groupId>

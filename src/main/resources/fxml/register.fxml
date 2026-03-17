@@ -30,7 +30,7 @@
         <Button text="Register" onAction="#register"/>
         <Button text="Back" onAction="#back"/>
 
-        <!-- Fail Label für Feedback an den User -->
+        <!-- Fail Label für Feedback an den User bei falscher Eingabe -->
         <Label fx:id="registerFailedLabel" textFill="red"/>
 
     </VBox>

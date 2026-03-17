@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<!-- FXML File für den Create Meal Controller -->
+
+<ScrollPane fx:id="root"
+            xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="view.CreateMealController"
+            fitToWidth="true"
+            hbarPolicy="NEVER"
+            styleClass="page-scroll">
+
+    <VBox spacing="20"
+          alignment="TOP_CENTER">
+        <!-- Padding -->
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+
+        <!-- Buttons für Zurück und Erstellen -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Button text="Back"
+                    onAction="#goBack"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Create Meal"
+                    onAction="#saveMeal"/>
+        </HBox>
+
+        <!-- Titel -->
+        <VBox spacing="6" alignment="CENTER">
+            <Label text="Create Meal"
+                   styleClass="title"/>
+            <Label text="Enter the recipe data below. Category, country and ingredients can be selected from existing values or typed in as new ones."
+                   textAlignment="CENTER"
+                   alignment="CENTER"
+                   wrapText="true"
+                   maxWidth="520"
+                   styleClass="subtitle"/>
+        </VBox>
+
+        <!-- Formular -->
+        <GridPane hgap="14" vgap="14" maxWidth="520">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="50"/>
+                <ColumnConstraints percentWidth="50"/>
+            </columnConstraints>
+
+            <!-- Meal Name -->
+            <VBox spacing="6" GridPane.rowIndex="0" GridPane.columnIndex="0">
+                <Label text="Meal Name"/>
+                <TextField fx:id="mealNameField"
+                           promptText="e.g. Chicken Alfredo"/>
+            </VBox>
+
+            <!-- Tags -->
+            <VBox spacing="6" GridPane.rowIndex="0" GridPane.columnIndex="1">
+                <Label text="Tags"/>
+                <TextField fx:id="tagsField"
+                           promptText="e.g. Pasta, Creamy, Dinner"/>
+            </VBox>
+
+            <!-- Category -->
+            <VBox spacing="6" GridPane.rowIndex="1" GridPane.columnIndex="0">
+                <Label text="Category"/>
+                <ComboBox fx:id="categoryComboBox"
+                          editable="true"
+                          prefWidth="253"
+                          promptText="Select existing or type a new one"/>
+            </VBox>
+
+            <!-- Country -->
+            <VBox spacing="6" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                <Label text="Country"/>
+                <ComboBox fx:id="areaComboBox"
+                          editable="true"
+                          prefWidth="253"
+                          promptText="Select existing or type a new one"/>
+            </VBox>
+
+            <!-- Thumbnail -->
+            <VBox spacing="6" GridPane.rowIndex="2" GridPane.columnIndex="0">
+                <Label text="Thumbnail URL"/>
+                <TextField fx:id="thumbField"
+                           promptText="https://..."/>
+            </VBox>
+
+            <!-- YouTube -->
+            <VBox spacing="6" GridPane.rowIndex="2" GridPane.columnIndex="1">
+                <Label text="YouTube URL"/>
+                <TextField fx:id="youtubeField"
+                           promptText="https://youtube.com/..."/>
+            </VBox>
+
+            <!-- Source -->
+            <VBox spacing="6" GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.columnSpan="2">
+                <Label text="Source URL"/>
+                <TextField fx:id="sourceField"
+                           promptText="https://..."/>
+            </VBox>
+
+            <!-- Instructions -->
+            <VBox spacing="6" GridPane.rowIndex="4" GridPane.columnIndex="0" GridPane.columnSpan="2">
+                <Label text="Instructions"/>
+                <TextArea fx:id="instructionsArea"
+                          promptText="Preparation steps..."
+                          prefRowCount="9"
+                          wrapText="true"/>
+            </VBox>
+        </GridPane>
+
+        <!-- Ingredients -->
+        <VBox spacing="12" maxWidth="520" fillWidth="true">
+            <Label text="Ingredients"
+                   styleClass="title"/>
+
+            <Text wrappingWidth="520"
+                  text="Each row contains one ingredient and one measure. New ingredients can be typed in directly. Use + to add a new row below and - to remove a row."/>
+
+            <!-- Ingredient Rows -->
+            <VBox fx:id="ingredientRowsBox"
+                  spacing="10">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <ComboBox editable="true"
+                              promptText="Ingredient"
+                              prefWidth="250"/>
+                    <TextField promptText="Measure"
+                               prefWidth="160"/>
+                    <Button text="+"
+                            onAction="#addIngredientRow"/>
+                    <Button text="-"
+                            onAction="#removeIngredientRow"/>
+                </HBox>
+            </VBox>
+        </VBox>
+
+        <!-- Status Label -->
+        <Label fx:id="createMealStatusLabel"
+               wrapText="true"
+               maxWidth="520"/>
+
+        <!-- Buttons für Zurück und Erstellen -->
+        <HBox spacing="10" alignment="CENTER" maxWidth="520">
+            <Button text="Back"
+                    onAction="#goBack"/>
+            <Button text="Create Meal"
+                    onAction="#saveMeal"/>
+        </HBox>
+
+    </VBox>
+</ScrollPane>

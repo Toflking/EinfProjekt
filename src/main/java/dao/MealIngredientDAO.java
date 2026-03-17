@@ -24,12 +24,36 @@ Jegliche Methoden hier funktionieren eigentlich nach demselben Prinzip:
 // Diese Klasse wurde vor dem Frontend gemacht, kann also Methoden beinhalten, die nie benutzt werden
 public class MealIngredientDAO {
     // SQL Strings
+    private static final String CREATE_MEAL_INGREDIENT =
+            "INSERT INTO meal_ingredients (meal_id, ingredient_id, measure) VALUES (?, ?, ?)";
+    private static final String DELETE_MEAL_INGREDIENTS_BY_MEAL_ID =
+            "DELETE FROM meal_ingredients WHERE meal_id = ?";
     private static final String LIST_INGREDIENTS_BY_MEAL_ID =
             "SELECT mi.meal_id, mi.ingredient_id, " +
                     "i.name AS ingredient_name, mi.measure " +
                     "FROM meal_ingredients mi " +
                     "JOIN ingredients i ON mi.ingredient_id = i.id " +
                     "WHERE mi.meal_id = ?";
+
+    // Erstellt ein MealIngredient
+    public int createMealIngredient(MealIngredient mealIngredient) throws SQLException {
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(CREATE_MEAL_INGREDIENT)) {
+            stmt.setInt(1, mealIngredient.getMeal_id());
+            stmt.setInt(2, mealIngredient.getIngredient_id());
+            stmt.setString(3, mealIngredient.getMeasure());
+            return stmt.executeUpdate();
+        }
+    }
+
+    // Löscht alle MealIngredients anhand einer Meal id
+    public int deleteMealIngredientsByMealId(int mealId) throws SQLException {
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(DELETE_MEAL_INGREDIENTS_BY_MEAL_ID)) {
+            stmt.setInt(1, mealId);
+            return stmt.executeUpdate();
+        }
+    }
 
     // Sucht nach Meal anhand der id in der DB und gibt alle Ingredients zurück die damit zusammen hängen
     public List<MealIngredient> listIngredientsByMealId(int mealId)

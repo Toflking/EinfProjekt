@@ -21,8 +21,9 @@ Jegliche Methoden hier funktionieren eigentlich nach demselben Prinzip:
 // Diese Klasse wurde vor dem Frontend gemacht, kann also Methoden beinhalten, die nie benutzt werden
 public class MealDAO {
     // SQL Strings
-    private static final String CREATE_MEAL = "INSERT INTO meals (name, category_id, area_id, instructions, thumb, youtube, source, tags) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String CREATE_MEAL = "INSERT INTO meals (name, category_id, area_id, instructions, thumb, youtube, source, tags, created_by_user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String GET_MEAL_BY_ID = "SELECT * FROM meals WHERE id = ?";
+    private static final String GET_MEAL_BY_NAME = "SELECT * FROM meals WHERE name = ?";
     private static final String LIST_MEALS = "SELECT * FROM meals";
     private static final String LIST_MEALS_BY_NAME_CONTAINS = "SELECT * FROM meals WHERE name LIKE ? ORDER BY name";
     private static final String LIST_MEALS_BY_INGREDIENT = "SELECT DISTINCT m.* FROM meals m JOIN meal_ingredients mi ON mi.meal_id = m.id WHERE mi.ingredient_id = ?";
@@ -38,7 +39,7 @@ public class MealDAO {
     public int createMeal(Meal meal) throws SQLException {
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(CREATE_MEAL, Statement.RETURN_GENERATED_KEYS)) {
-            bindMealParams(stmt, meal);
+            bindMealCreateParams(stmt, meal);
             stmt.executeUpdate();
             try (ResultSet rs = stmt.getGeneratedKeys()) {
                 return rs.next() ? rs.getInt(1) : -1;
@@ -60,6 +61,22 @@ public class MealDAO {
         }
         return null;
     }
+
+    // Suche nach Meal anhand des Namens
+    public Meal getMealByName(String name) throws SQLException {
+        try (Connection conn = Database.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(GET_MEAL_BY_NAME)) {
+            stmt.setString(1, name);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return buildMeal(rs);
+                }
+            }
+        }
+        return null;
+    }
+
+
     // Auflistung aller Meals
     public List<Meal> listMeals() throws SQLException {
         List<Meal> meals = new ArrayList<>();
@@ -125,7 +142,7 @@ public class MealDAO {
     public int updateMeal(Meal meal) throws SQLException {
         try (Connection conn = Database.getConnection();
         PreparedStatement stmt = conn.prepareStatement(UPDATE_MEAL)) {
-            bindMealParams(stmt, meal);
+            bindMealUpdateParams(stmt, meal);
             stmt.setInt(9, meal.getId());
             return stmt.executeUpdate();
         }
@@ -142,7 +159,19 @@ public class MealDAO {
 
     // Helper Methoden, nur zum Organisieren des Codes, damit obige Methoden nicht zu gross sind
     // baut ein Statement mit einem ganzen Meal Objekt auf
-    private void bindMealParams(PreparedStatement stmt, Meal meal) throws SQLException {
+    private void bindMealCreateParams(PreparedStatement stmt, Meal meal) throws SQLException {
+        stmt.setString(1, meal.getName());
+        stmt.setObject(2, meal.getCategory_id(), Types.INTEGER);
+        stmt.setObject(3, meal.getArea_id(), Types.INTEGER);
+        stmt.setString(4, meal.getInstructions());
+        stmt.setString(5, meal.getThumb());
+        stmt.setString(6, meal.getYoutube());
+        stmt.setString(7, meal.getSource());
+        stmt.setString(8, meal.getTags());
+        stmt.setObject(9, meal.getCreated_by_user_id(), Types.INTEGER);
+    }
+
+    private void bindMealUpdateParams(PreparedStatement stmt, Meal meal) throws SQLException {
         stmt.setString(1, meal.getName());
         stmt.setObject(2, meal.getCategory_id(), Types.INTEGER);
         stmt.setObject(3, meal.getArea_id(), Types.INTEGER);
@@ -168,6 +197,10 @@ public class MealDAO {
         meal.setTags(rs.getString("tags"));
         meal.setCreated_at(rs.getTimestamp("created_at"));
         meal.setUpdated_at(rs.getTimestamp("updated_at"));
+        Integer createdByUserId = (Integer) rs.getObject("created_by_user_id");
+        if (createdByUserId != null) {
+            meal.setCreated_by_user_id(createdByUserId);
+        }
         return meal;
     }
 
