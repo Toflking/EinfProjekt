@@ -20,6 +20,18 @@
     -fx-background-color: #505050;
 }
 
+.filter-bar {
+    -fx-background-color: #f4f4f4;
+    -fx-background-radius: 10;
+    -fx-border-color: #d3d3d3;
+    -fx-border-radius: 10;
+    -fx-padding: 8 10 8 10;
+}
+
+.filter-bar .separator:vertical .line {
+    -fx-border-color: #c6c6c6;
+}
+
 /* ListView Dark */
 .app-root .list-view {
     -fx-background-color: #2b2b2b;
@@ -58,4 +70,73 @@
 .subtitle {
     -fx-font-size: 16px;
     -fx-font-weight:bold;
+}
+
+/* Für die Herzen im Detail View */
+.heart-outline {
+    -fx-text-fill: black;
+    -fx-font-size: 30;
+}
+
+.heart-hover {
+    -fx-text-fill: red;
+    -fx-font-size: 30;
+}
+
+.heart-filled {
+    -fx-text-fill: red;
+    -fx-font-size: 30;
+}
+
+/* Für die Herzen in der Liste*/
+.meal-list-heart {
+    -fx-text-fill: black;
+    -fx-font-size: 18;
+}
+
+.meal-list-heart.heart-filled {
+    -fx-text-fill: red;
+    -fx-font-size: 18;
+}
+
+.meal-list-heart.heart-hover {
+    -fx-text-fill: red;
+    -fx-font-size: 18;
+}
+
+.filter-checkbox {
+    -fx-padding: 0;
+}
+
+.filter-checkbox .box {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #9f9f9f;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+.filter-checkbox:hover .box {
+    -fx-border-color: #0078d7;
+    -fx-background-color: #f7fbff;
+}
+
+.filter-checkbox:selected .box {
+    -fx-background-color: #0078d7;
+    -fx-border-color: #0078d7;
+}
+
+.filter-checkbox:selected .mark {
+    -fx-background-color: white;
+}
+
+.favorites-filter-label {
+    -fx-text-fill: #444444;
+    -fx-font-size: 13;
+}
+
+.web-view {
+    -fx-background-color: #111111;
+    -fx-border-color: #3a3a3a;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
 }

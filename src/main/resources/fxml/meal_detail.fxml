@@ -3,6 +3,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.web.WebView?>
 
 <!-- Das Fxml File für die detailierte Ansich von Rezepten -->
 
@@ -14,13 +15,13 @@
             hbarPolicy="NEVER"
             styleClass="page-scroll">
 
-    <content>
-        <VBox spacing="15" alignment="TOP_CENTER" styleClass="page-content">
+    <VBox spacing="15" alignment="TOP_CENTER" styleClass="page-content">
 
-            <!-- Padding -->
-            <padding>
-                <Insets top="20" right="20" bottom="20" left="20"/>
-            </padding>
+        <!-- Padding -->
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+        <StackPane>
 
             <!-- Titel -->
             <Label fx:id="mealName"
@@ -29,39 +30,57 @@
                    maxWidth="500"
                    textAlignment="CENTER"
                    alignment="CENTER"/>
-
-            <!-- Thumbnail -->
-            <ImageView fx:id="mealImage"
-                       fitWidth="300"
-                       preserveRatio="true"/>
-
-            <!-- Land Angabe -->
-            <Label fx:id="mealCountry"/>
-
-            <!-- Ingredients Liste -->
-            <Label text="Ingredients"
-                   styleClass="title"/>
-            <ListView fx:id="ingredientList" VBox.vgrow="NEVER"/>
-
-            <!-- Servings Control -->
-            <HBox spacing="10" alignment="CENTER">
-                <Button text="-" onAction="#decreaseServings"/>
-                <Label text="Servings:"/>
-                <Label fx:id="servingsLabel"/>
-                <Button text="+" onAction="#increaseServings"/>
+            <HBox alignment="CENTER_RIGHT">
+                <!-- Herz für Favoriten -->
+                <Label fx:id="heart"
+                       styleClass="heart-outline"
+                       text="♡"/>
             </HBox>
 
-            <!-- Instructions -->
-            <Label text="Instructions"
-                   styleClass="title"/>
-            <Label fx:id="mealInstructions"
-                   wrapText="true"
-                   maxWidth="400"/>
+        </StackPane>
+        <!-- Thumbnail -->
+        <ImageView fx:id="mealImage"
+                   fitWidth="300"
+                   preserveRatio="true"/>
 
-            <!-- Back Button -->
-            <Button text="Back" onAction="#goBack"/>
+        <!-- Land Angabe -->
+        <Label fx:id="mealCountry"/>
 
-        </VBox>
-    </content>
+        <!-- Ingredients Liste -->
+        <Label text="Ingredients"
+               styleClass="title"/>
+        <ListView fx:id="ingredientList" VBox.vgrow="NEVER"/>
 
+        <!-- Servings Control -->
+        <HBox spacing="10" alignment="CENTER">
+            <Button text="-" onAction="#decreaseServings"/>
+            <Label text="Servings:"/>
+            <Label fx:id="servingsLabel"/>
+            <Button text="+" onAction="#increaseServings"/>
+        </HBox>
+
+        <!-- Instructions -->
+        <Label text="Instructions"
+               styleClass="title"/>
+        <Label fx:id="mealInstructions"
+               wrapText="true"
+               maxWidth="400"/>
+
+        <!-- Video -->
+        <Label fx:id="videoTitle"
+               text="Video"
+               styleClass="title"
+               visible="false"
+               managed="false"/>
+        <WebView fx:id="mealVideo"
+                 prefWidth="480"
+                 prefHeight="270"
+                 maxWidth="480"
+                 visible="false"
+                 managed="false"/>
+
+        <!-- Back Button -->
+        <Button text="Back" onAction="#goBack"/>
+
+    </VBox>
 </ScrollPane>

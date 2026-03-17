@@ -1,17 +1,25 @@
 package view;
 
+// DAO Klassen
 import dao.AreaDAO;
 import dao.CategoryDAO;
+import dao.MealDAO;
+import dao.UserFavoriteDAO;
+// JavaFX Klassen
 import javafx.animation.PauseTransition;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-// Unsere Klassen
+// Model Klassen
 import model.Area;
 import model.Category;
 import model.Meal;
@@ -20,8 +28,12 @@ import services.MealFilterService;
 // Für SQL Exceptions
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashSet;
 // List brauchen wir immer für die Auflistung von einem unserer Objekte also z.B. Meals oder Ingredients
 import java.util.List;
+// Set brauchen wir hier für das Speichern aller Favoriten eines Users
+import java.util.Objects;
+import java.util.Set;
 // Function um Anzeigetext aus Objekten zu bekommen
 import java.util.function.Function;
 
@@ -30,6 +42,7 @@ public class MainController {
 
     // Felder in der App aus dem FXML File
     @FXML private Label usernameLabel;
+    @FXML private CheckBox favoritesOnlyCheckBox;
     @FXML private ListView<Meal> mealList;
     @FXML private TextField searchField;
     @FXML private ComboBox<Category> categoryFilter;
@@ -39,6 +52,9 @@ public class MainController {
     // Dao Objekte für Ausführen von Methoden
     private final CategoryDAO categoryDAO = new CategoryDAO();
     private final AreaDAO areaDAO = new AreaDAO();
+    private final MealDAO mealDAO = new MealDAO();
+    private final UserFavoriteDAO userFavoriteDAO =
+            new UserFavoriteDAO();
 
     // Zur Ausführung der Filter Methode
     private final MealFilterService filterService =
@@ -48,8 +64,11 @@ public class MainController {
     private final PauseTransition debounce =
             new PauseTransition(Duration.millis(300));
 
-    // Aktive Benutzer, wird durch Login/Registrierung gesetzt
+    // Aktiver Benutzer, wird durch Login/Registrierung gesetzt
     private User currentUser;
+    // Set, dass alle Favoriten des Users speichert
+    private final Set<Integer> favoriteMealIds =
+            new HashSet<>();
 
     // initialize wird ähnlich wie main automatisch ausgeführt, jedoch erst, nachdem das fxml file geladen wurde
     @FXML
@@ -60,14 +79,102 @@ public class MainController {
         loadCategories();
         loadAreas();
 
-        // Für das saubere Anzeigen der Meals
+        // Für das saubere Anzeigen der Meals zusammen mit den Herzen
         mealList.setCellFactory(param -> new ListCell<>() {
+            private final Label mealNameLabel = new Label();
+            private final Label heartLabel = new Label("♡");
+            private final Region spacer = new Region();
+            private final HBox content = new HBox(10);
+
+            {
+                mealNameLabel.setMaxWidth(Double.MAX_VALUE);
+
+                heartLabel.getStyleClass().add("meal-list-heart");
+                heartLabel.setOnMousePressed(event -> event.consume());
+                heartLabel.setOnMouseReleased(event -> event.consume());
+                heartLabel.setOnMouseEntered(event -> {
+                    Meal currentMeal = getItem();
+
+                    if (currentMeal == null
+                            || favoriteMealIds.contains(currentMeal.getId())) {
+                        return;
+                    }
+
+                    heartLabel.getStyleClass().remove("heart-filled");
+                    if (!heartLabel.getStyleClass().contains("heart-hover")) {
+                        heartLabel.getStyleClass().add("heart-hover");
+                    }
+                });
+                heartLabel.setOnMouseExited(event ->
+                        heartLabel.getStyleClass().remove("heart-hover"));
+                heartLabel.setOnMouseClicked(event -> {
+                    event.consume();
+
+                    Meal currentMeal = getItem();
+
+                    if (currentMeal == null
+                            || currentUser == null) {
+                        return;
+                    }
+
+                    try {
+                        if (favoriteMealIds.contains(currentMeal.getId())) {
+                            int result = userFavoriteDAO.removeFavorite(
+                                    currentUser.getId(),
+                                    currentMeal.getId()
+                            );
+
+                            if (result > 0) {
+                                favoriteMealIds.remove(currentMeal.getId());
+                                updateHeartState(heartLabel, currentMeal);
+                            } else {
+                                showError("Favorite Error",
+                                        "Could not remove favorite.");
+                            }
+                        } else {
+                            int result = userFavoriteDAO.addFavorite(
+                                    currentUser.getId(),
+                                    currentMeal.getId()
+                            );
+
+                            if (result > 0) {
+                                favoriteMealIds.add(currentMeal.getId());
+                                updateHeartState(heartLabel, currentMeal);
+                            } else {
+                                showError("Favorite Error",
+                                        "Could not add favorite.");
+                            }
+                        }
+                        runSearch();
+                    } catch (SQLException e) {
+                        showError("Favorite Error", e.getMessage());
+                    }
+                });
+
+                HBox.setHgrow(spacer, Priority.ALWAYS);
+                content.setAlignment(Pos.CENTER_LEFT);
+                content.getChildren().addAll(
+                        mealNameLabel,
+                        spacer,
+                        heartLabel
+                );
+            }
+
             @Override
             protected void updateItem(Meal meal, boolean empty) {
                 super.updateItem(meal, empty);
-                setText(empty || meal == null
-                        ? null
-                        : meal.getName());
+
+                if (empty || meal == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+
+                mealNameLabel.setText(meal.getName());
+                updateHeartState(heartLabel, meal);
+
+                setText(null);
+                setGraphic(content);
             }
         });
 
@@ -97,6 +204,7 @@ public class MainController {
         // Search ausführen, wenn einer der Filter gesetzt wurde
         categoryFilter.setOnAction(e -> runSearch());
         areaFilter.setOnAction(e -> runSearch());
+        favoritesOnlyCheckBox.setOnAction(e -> runSearch());
     }
 
     // Kategorien laden
@@ -172,6 +280,8 @@ public class MainController {
         Area selectedArea =
                 areaFilter.getValue();
 
+        boolean favoritesOnly = favoritesOnlyCheckBox.isSelected();
+
         // Task erstellen
         Task<List<Meal>> task = new Task<>() {
             @Override
@@ -181,7 +291,9 @@ public class MainController {
                 return filterService.searchMeals(
                         query,
                         selectedCategory,
-                        selectedArea);
+                        selectedArea,
+                        favoritesOnly,
+                        favoriteMealIds);
             }
         };
 
@@ -222,7 +334,7 @@ public class MainController {
             Scene scene = new Scene(root, 600, 800);
 
             // CSS file laden
-            scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/style.css")).toExternalForm());
 
             // Scene setzen
             stage.setScene(scene);
@@ -236,12 +348,46 @@ public class MainController {
     public void setCurrentUser(User currentUser) {
         this.currentUser = currentUser;
         usernameLabel.setText(currentUser.getUsername());
+        loadFavoritesForCurrentUser();
+        mealList.refresh();
+    }
+
+    private void loadFavoritesForCurrentUser() {
+        favoriteMealIds.clear();
+
+        if (currentUser == null) {
+            return;
+        }
+
+        try {
+            for (Meal meal : mealDAO
+                    .getFavoriteMealsByUser(currentUser.getId())) {
+                favoriteMealIds.add(meal.getId());
+            }
+        } catch (SQLException e) {
+            showError("Favorite Error", e.getMessage());
+        }
+    }
+
+    private void updateHeartState(Label heartLabel, Meal meal) {
+        heartLabel.setText(favoriteMealIds.contains(meal.getId())
+                ? "♥"
+                : "♡");
+
+        heartLabel.getStyleClass().remove("heart-filled");
+        heartLabel.getStyleClass().remove("heart-hover");
+
+        if (favoriteMealIds.contains(meal.getId())
+                && !heartLabel.getStyleClass().contains("heart-filled")) {
+            heartLabel.getStyleClass().add("heart-filled");
+        }
     }
 
     // Methode für das Ausloggen des Users, geht zum Loginscreen zurück
     public void logout() throws IOException {
         // User unsetten
         this.currentUser = null;
+        favoriteMealIds.clear();
 
         // FXMl laden
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));

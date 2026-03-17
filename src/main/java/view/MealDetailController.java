@@ -2,6 +2,7 @@ package view;
 
 import dao.AreaDAO;
 import dao.MealIngredientDAO;
+import dao.UserFavoriteDAO;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,6 +11,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.control.Alert;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import model.Meal;
 import model.MealIngredient;
@@ -26,20 +29,27 @@ import model.User;
 public class MealDetailController {
 
     // Alle verschiedenen "Anzeigen" aus dem FXML file die im Meal Detail vorkommen
+    @FXML private Label heart;
     @FXML private Label mealName;
     @FXML private ImageView mealImage;
     @FXML private Label mealCountry;
     @FXML private Label mealInstructions;
     @FXML private Label servingsLabel;
     @FXML private ListView<String> ingredientList;
+    @FXML private Label videoTitle;
+    @FXML private WebView mealVideo;
 
-    // Erstellen des DAO objekts zur Ausführung von DAO Methoden
-    private final MealIngredientDAO dao =
+    // Erstellen des DAO objekts zur Ausführung von Backend Methoden
+    private final MealIngredientDAO mealIngredientDAO =
             new MealIngredientDAO();
+
+    private final UserFavoriteDAO userFavoriteDAO =
+            new UserFavoriteDAO();
 
     // Erstellen des Service Klassen Objekts zur Berechnung der Mengen
     private final IngredientCalculationService calculationService =
             new IngredientCalculationService();
+
 
     // Speichern welches Meal geladen ist
     private Meal meal;
@@ -51,6 +61,55 @@ public class MealDetailController {
 
     // Für die Anzahl Personen zur Berechnung der Menge der Zutaten
     private int servings = 1;
+
+    private boolean isFavorite = false;
+
+    @FXML
+    private void initialize() {
+        heart.setOnMouseEntered(event -> {
+            if(!isFavorite) {
+                heart.getStyleClass().remove("heart-filled");
+                if (!heart.getStyleClass().contains("heart-hover")) {
+                    heart.getStyleClass().add("heart-hover");
+                }
+            }
+        });
+
+        heart.setOnMouseExited(event -> updateHeartState());
+
+        heart.setOnMouseClicked(event -> {
+            if (currentUser == null || meal == null) {
+                return;
+            }
+
+            try {
+                if (!isFavorite) {
+                    int result = userFavoriteDAO.addFavorite(currentUser.getId(), meal.getId());
+                    if (result > 0) {
+                        isFavorite = true;
+                        updateHeartState();
+                    } else {
+                        showError("Could not add favorite.");
+                    }
+
+                } else {
+                    int result = userFavoriteDAO.removeFavorite(currentUser.getId(), meal.getId());
+                    if (result > 0) {
+                        isFavorite = false;
+                        updateHeartState();
+                    } else {
+                        showError("Could not remove favorite.");
+                    }
+                }
+
+            } catch (SQLException e) {
+                showError("Database error: " + e.getMessage());
+            }
+        });
+
+
+    }
+
 
     // Setzen des Meals, das angezeigt werden soll, wird einmal ausgeführt, wenn Meal Details View aufgemacht wird
     public void setMeal(Meal meal) throws SQLException {
@@ -72,6 +131,7 @@ public class MealDetailController {
         mealCountry.setText("This Meal is " + areaDAO.getAreaById(meal.getArea_id()).getName());
         // Meal Instruktionen setzen
         mealInstructions.setText(meal.getInstructions());
+        loadVideo();
         // Zutaten Laden
         loadIngredients();
     }
@@ -82,7 +142,7 @@ public class MealDetailController {
         try {
             baseIngredients =
                     // Methode aus dem MealIngredient DAO, dass beide tables joint
-                    dao.listIngredientsByMealId(meal.getId());
+                    mealIngredientDAO.listIngredientsByMealId(meal.getId());
             // Update des UI
             updateIngredientView();
 
@@ -134,6 +194,23 @@ public class MealDetailController {
         );
     }
 
+    private void loadVideo() {
+        boolean hasVideo = meal.getYoutube() != null;
+
+        videoTitle.setManaged(hasVideo);
+        videoTitle.setVisible(hasVideo);
+        mealVideo.setManaged(hasVideo);
+        mealVideo.setVisible(hasVideo);
+
+        if (!hasVideo) {
+            mealVideo.getEngine().loadContent("");
+            return;
+        }
+
+        mealVideo.getEngine().setJavaScriptEnabled(true);
+        mealVideo.getEngine().load(meal.getYoutube());
+    }
+
 
     // Methode für den Back Button, um wieder zum Main Screen zu kommen
     @FXML
@@ -144,12 +221,38 @@ public class MealDetailController {
 
         MainController controller = loader.getController();
         controller.setCurrentUser(currentUser);
+        mealVideo.getEngine().loadContent("");
         // Scene setzen
         Stage stage = (Stage) mealName.getScene().getWindow();
         stage.getScene().setRoot(root);
     }
 
-    public void setCurrentUser(User currentUser) {
+    public void setCurrentUser(User currentUser) throws SQLException {
         this.currentUser = currentUser;
+
+        if (meal != null && userFavoriteDAO.isFavorite(currentUser.getId(), meal.getId())) {
+            isFavorite = true;
+        }
+
+        updateHeartState();
+    }
+
+    private void updateHeartState() {
+        heart.setText(isFavorite ? "♥" : "♡");
+        heart.getStyleClass().remove("heart-filled");
+        heart.getStyleClass().remove("heart-hover");
+
+        if (isFavorite && !heart.getStyleClass().contains("heart-filled")) {
+            heart.getStyleClass().add("heart-filled");
+        }
+    }
+
+    // Helper Methode um mit Errors in der App anzuzeigen
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Favorite Error");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

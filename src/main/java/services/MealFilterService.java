@@ -6,7 +6,10 @@ import model.Category;
 import model.Meal;
 
 import java.sql.SQLException;
+// List wird hier ebenfalls für eine Liste der anzuzeigenden Meals gebraucht
 import java.util.List;
+// Set wird hier auch für alle Meals die Favorite sind gebraucht
+import java.util.Set;
 import java.util.stream.Collectors;
 
 // Klassen zum Filtern einer Sucheingabe
@@ -18,11 +21,13 @@ public class MealFilterService {
     public List<Meal> searchMeals(
             String query,
             Category category,
-            Area area) throws SQLException {
+            Area area,
+            boolean favoritesOnly,
+            Set<Integer> favoriteMealIds) throws SQLException {
         // Liste erstellen die alle angezeigten meals am Ende beinhält
         List<Meal> meals = mealDAO.listMeals();
         // Filtern
-        return meals.stream()
+        meals = meals.stream()
                 // Filtern nach Query
                 .filter(m ->
                         query == null ||
@@ -45,7 +50,16 @@ public class MealFilterService {
                                         m.getArea_id()
                                                 == area.getId()
                 )
+
                 // Hinzufügen der Meals die alle Filter "bestanden" haben zur Liste
                 .collect(Collectors.toList());
+
+        // Filtern ob Favorite
+        if (favoritesOnly) {
+            meals = meals.stream()
+                    .filter(meal -> favoriteMealIds.contains(meal.getId()))
+                    .toList();
+        }
+        return meals;
     }
 }

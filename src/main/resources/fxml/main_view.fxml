@@ -33,7 +33,7 @@
            style="-fx-font-size:18px; -fx-font-weight:bold;"/>
 
     <!-- Search und Filter -->
-    <ToolBar>
+    <ToolBar styleClass="filter-bar">
         <!-- Such Feld -->
         <TextField fx:id="searchField"
                    promptText="Search recipes..."
@@ -48,6 +48,16 @@
         <ComboBox fx:id="areaFilter"
                   promptText="Category"
                   prefWidth="80"/>
+
+        <Separator orientation="VERTICAL"/>
+
+        <HBox alignment="CENTER_LEFT"
+              spacing="8"
+              styleClass="favorites-filter">
+            <Label text="Favorites:"
+                   styleClass="favorites-filter-label"/>
+            <CheckBox fx:id="favoritesOnlyCheckBox" styleClass="filter-checkbox"/>
+        </HBox>
 
     </ToolBar>
     <!-- Liste mit Meals -->
